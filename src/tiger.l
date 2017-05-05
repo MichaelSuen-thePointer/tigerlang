@@ -2,7 +2,8 @@
 #include <string>
 #include "TigerScanner.hpp"
 #undef YY_DECL
-#define YY_DECL int tiger::TigerScanner::yylex(tiger::TigerParser::semantic_type* const lval)
+#define YY_DECL int tiger::TigerScanner::yylex(tiger::TigerParser::semantic_type* const lval, tiger::TigerParser::location_type* loc)
+#define YY_USER_ACTION updateLocation(yytext, loc);
 
 using token = tiger::TigerParser::token_type;
 
@@ -15,32 +16,30 @@ using token = tiger::TigerParser::token_type;
 %option c++
 
 %%
-%{
-    yylval = lval;
-%}
-\( { return token::LPAREN; }
-\) { return token::RPAREN; }
-\[ { return token::LBRACKET; }
-\] { return token::RBRACKET; }
-\{ { return token::LBRACE; }
-\} { return token::RBRACE; }
+
+"(" { return token::LPAREN; }
+")" { return token::RPAREN; }
+"[" { return token::LBRACKET; }
+"]" { return token::RBRACKET; }
+"{" { return token::LBRACE; }
+"}" { return token::RBRACE; }
 := { return token::ASSIGN; }
 :  { return token::COLON; }
-\. { return token::DOT; }
+"." { return token::DOT; }
 ,  { return token::COMMA; }
 ;  { return token::SEMICOLON; }
-\* { return token::TIMES; }
-\/ { return token::DIVIDE; }
-\+ { return token::PLUS; }
-\- { return token::MINUS; }
+"*" { return token::TIMES; }
+"/" { return token::DIVIDE; }
+"+" { return token::PLUS; }
+"-" { return token::MINUS; }
 =  { return token::EQ; }
-<> { return token::NEQ; }
->  { return token::GT; }
-<  { return token::LT; }
->= { return token::GE; }
-<= { return token::LE; }
+"<>" { return token::NEQ; }
+">"  { return token::GT; }
+"<"  { return token::LT; }
+">=" { return token::GE; }
+"<=" { return token::LE; }
 &  { return token::AND; }
-|  { return token::OR; }
+"|"  { return token::OR; }
 
 array    { return token::ARRAY; }
 break    { return token::BREAK; }
@@ -61,24 +60,24 @@ var      { return token::VAR; }
 while    { return token::WHILE; }
 
 [0-9]+ {
-    yylval->build(atoi(yytext));
+    lval->build(atoi(yytext));
     return token::INT;
 }
 
-\"([\40-\176]|\\n|\\r|\\t|\\\"|\\\\|\\[0-9]{3,3}|\\[ \t\r\n]*\\)*\" {
-    yylval->build(escapeString(yytext));
+\"([^\\\"\t\r\n]|\\n|\\r|\\t|\\\"|\\\\|\\[0-9]{3,3}|\\[ \t\r\n]*\\)*\" {
+    lval->build(escapeString(yytext, loc));
     return token::STRING;
 }
 
 [a-zA-Z][a-zA-Z0-9_]* {
-    yylval->build(std::string(yytext));
-    return token::ID;
+    lval->build(std::string(yytext));
+    return token::IDENTIFIER;
 }
 
 "/*"(([^\*]*(\*[^\/])?)*)"*/" { continue; }
 
-[:space:] { continue; }
+[ \n\r\t] { continue; }
 
-. { error(yytext); }
+. { error(yytext, loc); return token::UNKNOWN; }
 
 %%
