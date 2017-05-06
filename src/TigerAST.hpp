@@ -16,23 +16,16 @@ protected:
     location _loc;
 public:
     virtual ~ASTNode() = default;
-    void loc(location const& loc)
-    {
-        _loc = loc;
-    }
-    const location& loc() const
-    {
-        return _loc;
-    }
+    void loc(location const& loc);
+
+    const location& loc() const;
     void semanticCheck();
 
-public:
-    virtual void semanticCheckImpl(SymbolTable& table)
-    {
-        assert(0);
-    }
+
     [[noreturn]]
     void semanticError(std::string const& msg) const;
+public:
+    virtual void semanticCheckImpl(SymbolTable& table);
 };
 
 class Expression;
@@ -42,16 +35,9 @@ class Program : public ASTNode
     std::unique_ptr<Expression> _exp;
 
 public:
-    explicit Program(Expression *r)
-        : _exp(r)
-    {
-    }
+    explicit Program(Expression* r);
 
-    const std::unique_ptr<Expression>& expression() const
-    {
-        return _exp;
-    }
-
+    const std::unique_ptr<Expression>& expression() const;
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
@@ -63,27 +49,13 @@ protected:
     Type* _expressionType = nullptr;
     bool _lValue = false;
 public:
-    bool hasValue() const
-    {
-        return _expressionType != nullptr;
-    }
-    const Type* expressionType() const
-    {
-        assert(_expressionType);
-        return _expressionType;
-    }
-    bool isLValue() const
-    {
-        return _lValue;
-    }
-    Type* expressionType()
-    {
-        if (_expressionType == nullptr)
-        {
-            assert(_expressionType);
-        }
-        return _expressionType;
-    }
+    bool hasValue() const;
+
+    const Type* expressionType() const;
+
+    bool isLValue() const;
+
+    Type* expressionType();
 };
 
 class Declaration : public ASTNode
@@ -92,39 +64,33 @@ public:
     virtual void semanticCheckInside(SymbolTable& table) = 0;
 };
 
-class VariableDeclaration : public Declaration
+class IdentifierTypeDeclaration : public Declaration
 {
 protected:
     std::string _identifier;
     std::string _typeID;
+    bool _escape = false;
+public:
+    IdentifierTypeDeclaration(std::string id, std::string typeID);
+
+    const std::string& identifier() const;
+
+    const std::string& typeId() const;
+
+    bool escape() const;
+
+    void escape(bool value);
+};
+
+class VariableDeclaration : public IdentifierTypeDeclaration
+{
+protected:
     std::unique_ptr<Expression> _initializer;
 
-    bool _escape = true;
 public:
-    bool escape() const
-    {
-        return _escape;
-    }
+    VariableDeclaration(std::string id, std::string typeID, Expression* exp);
 
-    VariableDeclaration(std::string id, std::string typeID, Expression *exp)
-        : _identifier(std::move(id)), _typeID(std::move(typeID)), _initializer(exp)
-    {
-    }
-
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
-
-    const std::string& typeId() const
-    {
-        return _typeID;
-    }
-
-    const std::unique_ptr<Expression>& initializer() const
-    {
-        return _initializer;
-    }
+    const std::unique_ptr<Expression>& initializer() const;
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
 
@@ -140,20 +106,11 @@ protected:
     std::unique_ptr<Type> _type;
 
 public:
-    TypeDeclaration(std::string typeID, Type *type)
-        : _typeID(std::move(typeID)), _type(type)
-    {
-    }
+    TypeDeclaration(std::string typeID, Type* type);
 
-    const std::string& typeId() const
-    {
-        return _typeID;
-    }
+    const std::string& typeId() const;
 
-    const std::unique_ptr<Type>& type() const
-    {
-        return _type;
-    }
+    const std::unique_ptr<Type>& type() const;
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
@@ -161,28 +118,10 @@ protected:
     void semanticCheckInside(SymbolTable& table) override;
 };
 
-class FunctionParameter : public ASTNode
+class FunctionParameter : public IdentifierTypeDeclaration
 {
-protected:
-    std::string _identifier;
-    std::string _typeID;
-
 public:
-    FunctionParameter(std::string id, std::string typeID)
-        : _identifier(std::move(id)), _typeID(std::move(typeID))
-    {
-    }
-
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
-
-    const std::string& typeId() const
-    {
-        return _typeID;
-    }
-
+    FunctionParameter(std::string id, std::string typeID);
 };
 
 class FunctionDeclaration : public Declaration
@@ -193,31 +132,16 @@ protected:
     std::string _returnType;
     std::unique_ptr<Expression> _body;
 public:
-    FunctionDeclaration(std::string identifier, std::vector<FunctionParameter> &params,
-        std::string returnType, Expression *body)
-        : _identifier(std::move(identifier)), _parameters(std::move(params)), _returnType(std::move(returnType)), _body(body)
-    {
-    }
+    FunctionDeclaration(std::string identifier, std::vector<FunctionParameter>& params,
+                        std::string returnType, Expression* body);
 
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
+    const std::string& identifier() const;
 
-    const std::vector<FunctionParameter>& parameters() const
-    {
-        return _parameters;
-    }
+    const std::vector<FunctionParameter>& parameters() const;
 
-    const std::string& returnType() const
-    {
-        return _returnType;
-    }
+    const std::string& returnType() const;
 
-    const std::unique_ptr<Expression>& body() const
-    {
-        return _body;
-    }
+    const std::unique_ptr<Expression>& body() const;
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
 
@@ -227,10 +151,10 @@ protected:
 class Type : public ASTNode
 {
 public:
-    virtual bool isInt() const { return false; }
-    virtual bool isString() const { return false; }
-    virtual bool isArray() const { return false; }
-    virtual bool isRecord() const { return false; }
+    virtual bool isInt() const;
+    virtual bool isString() const;
+    virtual bool isArray() const;
+    virtual bool isRecord() const;
 
     friend bool operator==(const Type& l, const Type& r);
     friend bool operator!=(const Type& l, const Type& r);
@@ -247,27 +171,17 @@ class IdentifierType : public Type
 protected:
     std::string _identifier;
 public:
-    explicit IdentifierType(std::string id)
-        : _identifier(std::move(id))
-    {
-    }
-    bool isInt() const override
-    {
-        return _identifier == "int";
-    }
-    bool isString() const override
-    {
-        return _identifier == "string";
-    }
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
+    explicit IdentifierType(std::string id);
 
-    Kind kind() const override
-    {
-        return Id;
-    }
+    bool isInt() const override;
+
+    bool isString() const override;
+
+    const std::string& identifier() const;
+
+    Kind kind() const override;
+protected:
+
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -277,19 +191,13 @@ protected:
     std::string _typeID;
 
 public:
-    explicit ArrayType(std::string id)
-        : _typeID(std::move(id))
-    {
-    }
-    bool isArray() const override { return true; }
-    const std::string& typeId() const
-    {
-        return _typeID;
-    }
-    Kind kind() const override
-    {
-        return Array;
-    }
+    explicit ArrayType(std::string id);
+    bool isArray() const override;
+
+    const std::string& typeId() const;
+
+    Kind kind() const override;
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -300,21 +208,11 @@ protected:
     std::string _typeID;
 
 public:
-    FieldDeclaration(std::string id, std::string typeID)
-        : _identifier(std::move(id)), _typeID(std::move(typeID))
-    {
-    }
+    FieldDeclaration(std::string id, std::string typeID);
 
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
+    const std::string& identifier() const;
 
-    const std::string& typeId() const
-    {
-        return _typeID;
-    }
-
+    const std::string& typeId() const;
 };
 
 class RecordType : public Type
@@ -323,19 +221,13 @@ protected:
     std::vector<FieldDeclaration> _fields;
 
 public:
-    RecordType(std::vector<FieldDeclaration> &fields)
-        : _fields(std::move(fields))
-    {
-    }
-    bool isRecord() const override { return true; }
-    const std::vector<FieldDeclaration>& fields() const
-    {
-        return _fields;
-    }
-    Kind kind() const override
-    {
-        return Record;
-    }
+    RecordType(std::vector<FieldDeclaration>& fields);
+    bool isRecord() const override;
+
+    const std::vector<FieldDeclaration>& fields() const;
+
+    Kind kind() const override;
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -345,15 +237,9 @@ protected:
     std::string _identifier;
 
 public:
-    Identifier(std::string id)
-        : _identifier(std::move(id))
-    {
-    }
+    Identifier(std::string id);
 
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
+    const std::string& identifier() const;
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
@@ -366,20 +252,11 @@ protected:
     std::unique_ptr<Expression> _right;
 
 public:
-    Subscript(Expression *l, Expression *r)
-        : _left(l), _right(r)
-    {
-    }
+    Subscript(Expression* l, Expression* r);
 
-    const std::unique_ptr<Expression>& left() const
-    {
-        return _left;
-    }
+    const std::unique_ptr<Expression>& left() const;
 
-    const std::unique_ptr<Expression>& right() const
-    {
-        return _right;
-    }
+    const std::unique_ptr<Expression>& right() const;
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
@@ -392,27 +269,20 @@ protected:
     std::string _identifier;
 
 public:
-    FieldExpression(Expression *l, std::string r)
-        : _left(l), _identifier(std::move(r))
-    {
-    }
+    FieldExpression(Expression* l, std::string r);
 
-    const std::unique_ptr<Expression>& left() const
-    {
-        return _left;
-    }
+    const std::unique_ptr<Expression>& left() const;
 
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
+    const std::string& identifier() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
 class Nil : public Expression
 {
 public:
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -422,16 +292,11 @@ protected:
     int _value;
 
 public:
-    explicit IntLiteral(int v)
-        : _value(v)
-    {
-    }
+    explicit IntLiteral(int v);
 
-    int value() const
-    {
-        return _value;
-    }
+    int value() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -441,16 +306,11 @@ protected:
     std::string _value;
 
 public:
-    explicit StringLiteral(std::string v)
-        : _value(v)
-    {
-    }
+    explicit StringLiteral(std::string v);
 
-    const std::string& value() const
-    {
-        return _value;
-    }
+    const std::string& value() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -460,16 +320,11 @@ protected:
     std::vector<std::unique_ptr<Expression>> _expressions;
 
 public:
-    explicit Sequence(std::vector<Expression *> &exp)
-        : _expressions(exp.begin(), exp.end())
-    {
-    }
+    explicit Sequence(std::vector<Expression *>& exp);
 
-    const std::vector<std::unique_ptr<Expression>>& expressions() const
-    {
-        return _expressions;
-    }
+    const std::vector<std::unique_ptr<Expression>>& expressions() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -479,16 +334,11 @@ protected:
     std::unique_ptr<Expression> _expression;
 
 public:
-    explicit Negation(Expression *exp)
-        : _expression(exp)
-    {
-    }
+    explicit Negation(Expression* exp);
 
-    const std::unique_ptr<Expression>& expression() const
-    {
-        return _expression;
-    }
+    const std::unique_ptr<Expression>& expression() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -499,21 +349,13 @@ protected:
     std::vector<std::unique_ptr<Expression>> _arguments;
 
 public:
-    Call(std::string id, std::vector<Expression *> args)
-        : _identifier(std::move(id)), _arguments(args.begin(), args.end())
-    {
-    }
+    Call(std::string id, std::vector<Expression *> args);
 
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
+    const std::string& identifier() const;
 
-    const std::vector<std::unique_ptr<Expression>>& arguments() const
-    {
-        return _arguments;
-    }
+    const std::vector<std::unique_ptr<Expression>>& arguments() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -524,20 +366,11 @@ protected:
     std::unique_ptr<Expression> _right;
 
 public:
-    Infix(Expression *l, Expression *r)
-        : _left(l), _right(r)
-    {
-    }
+    Infix(Expression* l, Expression* r);
 
-    const std::unique_ptr<Expression>& left() const
-    {
-        return _left;
-    }
+    const std::unique_ptr<Expression>& left() const;
 
-    const std::unique_ptr<Expression>& right() const
-    {
-        return _right;
-    }
+    const std::unique_ptr<Expression>& right() const;
 
 protected:
     virtual void semanticCheckInfix(SymbolTable& table);
@@ -547,9 +380,7 @@ protected:
 class Eq : public Infix
 {
 public:
-    Eq(Expression *l, Expression *r) : Infix(l, r)
-    {
-    }
+    Eq(Expression* l, Expression* r);
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
@@ -557,9 +388,7 @@ protected:
 class Ne : public Infix
 {
 public:
-    Ne(Expression *l, Expression *r) : Infix(l, r)
-    {
-    }
+    Ne(Expression* l, Expression* r);
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
@@ -567,9 +396,7 @@ protected:
 class Gt : public Infix
 {
 public:
-    Gt(Expression *l, Expression *r) : Infix(l, r)
-    {
-    }
+    Gt(Expression* l, Expression* r);
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
@@ -577,9 +404,7 @@ protected:
 class Ge : public Infix
 {
 public:
-    Ge(Expression *l, Expression *r) : Infix(l, r)
-    {
-    }
+    Ge(Expression* l, Expression* r);
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
@@ -587,9 +412,7 @@ protected:
 class Lt : public Infix
 {
 public:
-    Lt(Expression *l, Expression *r) : Infix(l, r)
-    {
-    }
+    Lt(Expression* l, Expression* r);
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
@@ -597,9 +420,7 @@ protected:
 class Le : public Infix
 {
 public:
-    Le(Expression *l, Expression *r) : Infix(l, r)
-    {
-    }
+    Le(Expression* l, Expression* r);
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
@@ -607,54 +428,34 @@ protected:
 class Add : public Infix
 {
 public:
-    Add(Expression *l, Expression *r) : Infix(l, r)
-    {
-    }
-
+    Add(Expression* l, Expression* r);
 };
 class Sub : public Infix
 {
 public:
-    Sub(Expression *l, Expression *r) : Infix(l, r)
-    {
-    }
-
+    Sub(Expression* l, Expression* r);
 };
 class Mul : public Infix
 {
 public:
-    Mul(Expression *l, Expression *r) : Infix(l, r)
-    {
-    }
-
+    Mul(Expression* l, Expression* r);
 };
 class Div : public Infix
 {
 public:
-    Div(Expression *l, Expression *r) : Infix(l, r)
-    {
-    }
-
+    Div(Expression* l, Expression* r);
 };
 
 class And : public Infix
 {
 public:
-    And(Expression *l, Expression *r)
-        : Infix(l, r)
-    {
-    }
-
+    And(Expression* l, Expression* r);
 };
 
 class Or : public Infix
 {
 public:
-    Or(Expression *l, Expression *r)
-        : Infix(l, r)
-    {
-    }
-
+    Or(Expression* l, Expression* r);
 };
 
 class ArrayCreate : public Expression
@@ -665,26 +466,15 @@ protected:
     std::unique_ptr<Expression> _initializer;
 
 public:
-    ArrayCreate(std::string typeId, Expression *expression, Expression *initializer)
-        : _typeID(std::move(typeId)), _size(expression), _initializer(initializer)
-    {
-    }
+    ArrayCreate(std::string typeId, Expression* expression, Expression* initializer);
 
-    const std::string& typeId() const
-    {
-        return _typeID;
-    }
+    const std::string& typeId() const;
 
-    const std::unique_ptr<Expression>& size() const
-    {
-        return _size;
-    }
+    const std::unique_ptr<Expression>& size() const;
 
-    const std::unique_ptr<Expression>& initializer() const
-    {
-        return _initializer;
-    }
+    const std::unique_ptr<Expression>& initializer() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -694,21 +484,11 @@ protected:
     std::string _identifier;
     std::unique_ptr<Expression> _initializer;
 public:
-    FieldInitializer(std::string id, Expression* initializer)
-        : _identifier(std::move(id))
-        , _initializer(initializer)
-    {
-    }
+    FieldInitializer(std::string id, Expression* initializer);
 
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
+    const std::string& identifier() const;
 
-    const std::unique_ptr<Expression>& initializer() const
-    {
-        return _initializer;
-    }
+    const std::unique_ptr<Expression>& initializer() const;
 };
 
 class FieldCreate : public ASTNode
@@ -718,26 +498,17 @@ protected:
     std::unique_ptr<Expression> _initializer;
 
 public:
-    FieldCreate(std::string id, Expression* init)
-        : _identifier(std::move(id)), _initializer(init)
-    {
-    }
+    FieldCreate(std::string id, Expression* init);
 
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
+    const std::string& identifier() const;
 
-    const std::unique_ptr<Expression>& initializer() const
-    {
-        return _initializer;
-    }
-
+    const std::unique_ptr<Expression>& initializer() const;
 };
 
 class Break : public Expression
 {
 public:
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -748,27 +519,13 @@ protected:
     std::vector<FieldCreate> _fields;
 
 public:
-    RecordCreate(std::string id, std::vector<std::tuple<std::string, Expression*, location>>& fields)
-        : _typeID(std::move(id)), _fields()
-    {
-        _fields.reserve(fields.size());
-        for (auto& p : fields)
-        {
-            _fields.emplace_back(std::get<0>(p), std::get<1>(p));
-            _fields.back().loc(std::get<2>(p));
-        }
-    }
+    RecordCreate(std::string id, std::vector<std::tuple<std::string, Expression*, location>>& fields);
 
-    const std::string& typeId() const
-    {
-        return _typeID;
-    }
+    const std::string& typeId() const;
 
-    const std::vector<FieldCreate>& fields() const
-    {
-        return _fields;
-    }
+    const std::vector<FieldCreate>& fields() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -779,21 +536,13 @@ protected:
     std::unique_ptr<Expression> _right;
 
 public:
-    Assignment(Expression *l, Expression *r)
-        : _left(l), _right(r)
-    {
-    }
+    Assignment(Expression* l, Expression* r);
 
-    const std::unique_ptr<Expression>& left() const
-    {
-        return _left;
-    }
+    const std::unique_ptr<Expression>& left() const;
 
-    const std::unique_ptr<Expression>& right() const
-    {
-        return _right;
-    }
+    const std::unique_ptr<Expression>& right() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -805,26 +554,15 @@ protected:
     std::unique_ptr<Expression> _elseBranch;
 
 public:
-    IfThenElse(Expression *cond, Expression *then, Expression *els)
-        : _condition(cond), _thenBranch(then), _elseBranch(els)
-    {
-    }
+    IfThenElse(Expression* cond, Expression* then, Expression* els);
 
-    const std::unique_ptr<Expression>& condition() const
-    {
-        return _condition;
-    }
+    const std::unique_ptr<Expression>& condition() const;
 
-    const std::unique_ptr<Expression>& thenBranch() const
-    {
-        return _thenBranch;
-    }
+    const std::unique_ptr<Expression>& thenBranch() const;
 
-    const std::unique_ptr<Expression>& elseBranch() const
-    {
-        return _elseBranch;
-    }
+    const std::unique_ptr<Expression>& elseBranch() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -835,21 +573,13 @@ protected:
     std::unique_ptr<Expression> _thenBranch;
 
 public:
-    IfThen(Expression *cond, Expression *then)
-        : _condition(cond), _thenBranch(then)
-    {
-    }
+    IfThen(Expression* cond, Expression* then);
 
-    const std::unique_ptr<Expression>& condition() const
-    {
-        return _condition;
-    }
+    const std::unique_ptr<Expression>& condition() const;
 
-    const std::unique_ptr<Expression>& thenBranch() const
-    {
-        return _thenBranch;
-    }
+    const std::unique_ptr<Expression>& thenBranch() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -860,21 +590,13 @@ protected:
     std::unique_ptr<Expression> _body;
 
 public:
-    While(Expression *cond, Expression *body)
-        : _condition(cond), _body(body)
-    {
-    }
+    While(Expression* cond, Expression* body);
 
-    const std::unique_ptr<Expression>& condition() const
-    {
-        return _condition;
-    }
+    const std::unique_ptr<Expression>& condition() const;
 
-    const std::unique_ptr<Expression>& body() const
-    {
-        return _body;
-    }
+    const std::unique_ptr<Expression>& body() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -887,31 +609,17 @@ protected:
     std::unique_ptr<Expression> _body;
 
 public:
-    For(std::string id, Expression *l, Expression *r, Expression *body)
-        : _identifier(std::move(id)), _lowerBound(l), _upperBound(r), _body(body)
-    {
-    }
+    For(std::string id, Expression* l, Expression* r, Expression* body);
 
-    const std::string& identifier() const
-    {
-        return _identifier;
-    }
+    const std::string& identifier() const;
 
-    const std::unique_ptr<Expression>& lowerBound() const
-    {
-        return _lowerBound;
-    }
+    const std::unique_ptr<Expression>& lowerBound() const;
 
-    const std::unique_ptr<Expression>& upperBound() const
-    {
-        return _upperBound;
-    }
+    const std::unique_ptr<Expression>& upperBound() const;
 
-    const std::unique_ptr<Expression>& body() const
-    {
-        return _body;
-    }
+    const std::unique_ptr<Expression>& body() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 
@@ -922,21 +630,13 @@ protected:
     std::vector<std::unique_ptr<Expression>> _body;
 
 public:
-    Let(std::vector<Declaration *> bindings, std::vector<Expression *> body)
-        : _bindings(bindings.begin(), bindings.end()), _body(body.begin(), body.end())
-    {
-    }
+    Let(std::vector<Declaration *> bindings, std::vector<Expression *> body);
 
-    const std::vector<std::unique_ptr<Declaration>>& bindings() const
-    {
-        return _bindings;
-    }
+    const std::vector<std::unique_ptr<Declaration>>& bindings() const;
 
-    const std::vector<std::unique_ptr<Expression>>& body() const
-    {
-        return _body;
-    }
+    const std::vector<std::unique_ptr<Expression>>& body() const;
 
+protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
 

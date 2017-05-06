@@ -3,6 +3,11 @@
 #include <memory>
 namespace tiger
 {
+SymbolTable::SymbolTable()
+{
+    initializeIntrinsic();
+}
+
 void SymbolTable::initializeIntrinsic()
 {
     _varTable.emplace_back();
@@ -109,7 +114,125 @@ Type* SymbolTable::getNil()
     return nilType.get();
 }
 
-std::map<std::string, std::unique_ptr<Type>> SymbolTable::_tempBuffer;
+std::map<std::string, IdentifierTypeDeclaration*>& SymbolTable::vars()
+{
+    return _varTable[_currDepth - 1];
+}
 
+std::map<std::string, Type*>& SymbolTable::types()
+{
+    return _typeTable[_currDepth - 1];
+}
+
+std::map<std::string, FunctionDeclaration*>& SymbolTable::funcs()
+{
+    return _funcTable[_currDepth - 1];
+}
+
+bool SymbolTable::addVariable(std::string const& name, std::string const& typeId)
+{
+    if (vars().find(name) != vars().end())
+    {
+        return false;
+    }
+    auto ty = checkType(typeId);
+    if (ty == nullptr)
+    {
+        return false;
+    }
+    return addVariable(name, ty);
+}
+
+bool SymbolTable::addVariable(std::string const& name, Type* type)
+{
+    if (vars().find(name) != vars().end())
+    {
+        return false;
+    }
+    vars().emplace(name, type);
+    return true;
+}
+
+bool SymbolTable::addType(std::string const& name, Type* type)
+{
+    assert(type);
+    if (types().find(name) != types().end())
+    {
+        return false;
+    }
+    types().emplace(name, type);
+    return true;
+}
+
+bool SymbolTable::addType(std::string const& name, std::string const& typeId)
+{
+    if (types().find(name) != types().end())
+    {
+        return false;
+    }
+    auto ty = checkType(typeId);
+    if (ty == nullptr)
+    {
+        return false;
+    }
+    return addType(name, ty);
+}
+
+bool SymbolTable::addFunction(std::string const& name, FunctionDeclaration* decl)
+{
+    if (funcs().find(name) != funcs().end())
+    {
+        return false;
+    }
+    funcs().emplace(name, decl);
+    return true;
+}
+
+Type* SymbolTable::checkType(std::string const& name)
+{
+    size_t ignore;
+    return check(name, _typeTable, ignore);
+}
+
+IdentifierTypeDeclaration* SymbolTable::checkVariable(std::string const& name, bool& inCurrScope)
+{
+    size_t depth;
+    auto r = check(name, _varTable, depth);
+    inCurrScope = depth == _currDepth - 1;
+    return r;
+}
+
+FunctionDeclaration* SymbolTable::checkFunction(std::string const& name)
+{
+    size_t ignore;
+    return check(name, _funcTable, ignore);
+}
+
+void SymbolTable::enterScope()
+{
+    ++_currDepth;
+
+    advance(_currDepth, _varTable);
+    advance(_currDepth, _typeTable);
+    advance(_currDepth, _funcTable);
+}
+
+void SymbolTable::exitScope()
+{
+    --_currDepth;
+    assert(_currDepth >= 1);
+}
+
+ScopeGuard::ScopeGuard(SymbolTable& r): ref(r)
+{
+    ref.enterScope();
+}
+
+ScopeGuard::~ScopeGuard()
+{
+    ref.exitScope();
+}
+
+std::map<std::string, std::unique_ptr<Type>> SymbolTable::_tempBuffer;
 
 }

@@ -1,541 +1,604 @@
 #include "TigerAST.hpp"
-#include <sstream>
-#include <set>
 
 namespace tiger
 {
-void ASTNode::semanticCheck()
+void ASTNode::loc(location const& loc)
 {
-    SymbolTable table;
-    semanticCheckImpl(table);
+    _loc = loc;
 }
 
-void checkHasValue(const std::unique_ptr<Expression>& exp)
+const location& ASTNode::loc() const
 {
-    if (!exp->hasValue())
-    {
-        exp->semanticError("Expression should has value");
-    }
+    return _loc;
 }
 
-[[noreturn]]
-void ASTNode::semanticError(std::string const& msg) const
+Program::Program(Expression* r)
+    : _exp(r)
 {
-    std::ostringstream ostr;
-    ostr << msg << " at " << loc();
-    throw std::runtime_error(ostr.str());
 }
 
-void Program::semanticCheckImpl(SymbolTable& table)
+const std::unique_ptr<Expression>& Program::expression() const
 {
-    _exp->semanticCheckImpl(table);
+    return _exp;
 }
 
-void VariableDeclaration::semanticCheckImpl(SymbolTable& table)
+bool Expression::hasValue() const
 {
-    _initializer->semanticCheckImpl(table);
-    checkHasValue(_initializer);
-    if (_typeID == "")
-    {
-        auto ty = _initializer->expressionType();
-        if (table.addVariable(_identifier, ty) == false)
-        {
-            semanticError("Duplicate variable name");
-        }
-    }
-    else
-    {
-        table.addVariable(_identifier, _typeID);
-    }
+    return _expressionType != nullptr;
 }
 
-void VariableDeclaration::semanticCheckInside(SymbolTable& table)
+const Type* Expression::expressionType() const
 {
-    if (_typeID != "")
-    {
-        auto ty = table.checkType(_typeID);
-        if (*ty != *_initializer->expressionType())
-        {
-            _initializer->semanticError("Type mismatch");
-        }
-    }
+    assert(_expressionType);
+    return _expressionType;
 }
 
-
-void TypeDeclaration::semanticCheckImpl(SymbolTable& table)
+bool Expression::isLValue() const
 {
-    if (table.addType(_typeID, _type.get()) == false)
-    {
-        semanticError("Duplicate type name");
-    }
+    return _lValue;
 }
 
-void TypeDeclaration::semanticCheckInside(SymbolTable& table)
+Type* Expression::expressionType()
 {
-    _type->semanticCheckImpl(table);
-}
-
-void FunctionDeclaration::semanticCheckImpl(SymbolTable& table)
-{
-    if (table.addFunction(_identifier, this) == false)
+    if (_expressionType == nullptr)
     {
-        semanticError("Duplicate function name");
-    }
-}
-
-void FunctionDeclaration::semanticCheckInside(SymbolTable& table)
-{
-    std::set<std::string> unique;
-    ScopeGuard g(table);
-    for (auto& param : _parameters)
-    {
-        if (unique.insert(param.identifier()).second == false)
-        {
-            param.semanticError("Duplicate parameter name");
-        }
-        if (table.checkType(param.typeId()) == nullptr)
-        {
-            param.semanticError("Type not exist");
-        }
-        table.addVariable(param.identifier(), param.typeId());
-    }
-    _body->semanticCheckImpl(table);
-    if (_returnType != "")
-    {
-        auto retType = table.checkType(_returnType);
-        if (retType == nullptr)
-        {
-            semanticError("Return type not exist");
-        }
-        checkHasValue(_body);
-        if (*_body->expressionType() != *retType)
-        {
-            semanticError("Return type not match");
-        }
-    }
-    else
-    {
-        if (_body->hasValue())
-        {
-            _body->semanticError("Function does not return type but its body do");
-        }
-    }
-
-}
-
-void IdentifierType::semanticCheckImpl(SymbolTable& table)
-{
-    if (table.checkType(_identifier) == nullptr)
-    {
-        semanticError("Type " + _identifier + " does not exist");
-    }
-}
-
-void ArrayType::semanticCheckImpl(SymbolTable& table)
-{
-    if (table.checkType(_typeID) == nullptr)
-    {
-        semanticError("Type " + _typeID + " does not exist");
-    }
-}
-
-void RecordType::semanticCheckImpl(SymbolTable& table)
-{
-    std::set<std::string> unique;
-    for (auto const& id : _fields)
-    {
-        if (unique.insert(id.identifier()).second == false)
-        {
-            semanticError("Duplicate record entry");
-        }
-        if (table.checkType(id.typeId()) == nullptr)
-        {
-            semanticError("Type " + id.typeId() + " does not exist");
-        }
-    }
-}
-
-void Identifier::semanticCheckImpl(SymbolTable& table)
-{
-    auto ty = table.checkVariable(_identifier);
-    if (ty == nullptr)
-    {
-        semanticError("Variable not exist");
-    }
-    _expressionType = ty;
-    _lValue = true;
-}
-
-void Subscript::semanticCheckImpl(SymbolTable& table)
-{
-    _left->semanticCheckImpl(table);
-    _right->semanticCheckImpl(table);
-    if (_left->hasValue() && _left->expressionType()->isArray() &&
-        _right->hasValue() && _right->expressionType()->isInt())
-    {
-        auto arrTy = static_cast<const ArrayType*>(_left->expressionType());
-        _expressionType = table.checkType(arrTy->typeId());
         assert(_expressionType);
-        _lValue = true;
     }
-    else
-    {
-        semanticError("Array subscription not valid");
-    }
-}
-
-void FieldExpression::semanticCheckImpl(SymbolTable& table)
-{
-    _left->semanticCheckImpl(table);
-    if (_left->hasValue() && _left->expressionType()->isRecord())
-    {
-        auto recTy = static_cast<const RecordType*>(_left->expressionType());
-        auto r = std::find_if(recTy->fields().begin(), recTy->fields().end(), [&](const FieldDeclaration& e)
-        {
-            return e.identifier() == _identifier;
-        });
-        if (r == recTy->fields().end())
-        {
-            semanticError("Record type does not have field: " + _identifier);
-        }
-        _expressionType = table.checkType(r->typeId());
-        assert(_expressionType);
-        _lValue = true;
-    }
-    else
-    {
-        semanticError("Left hand side is not record type");
-    }
-}
-
-void Nil::semanticCheckImpl(SymbolTable& table)
-{
-    _expressionType = table.checkType("nil");
-}
-
-void IntLiteral::semanticCheckImpl(SymbolTable& table)
-{
-    _expressionType = table.checkType("int");
-}
-
-void StringLiteral::semanticCheckImpl(SymbolTable& table)
-{
-    _expressionType = table.checkType("string");
-}
-
-void Sequence::semanticCheckImpl(SymbolTable& table)
-{
-    for (auto& exp : _expressions)
-    {
-        exp->semanticCheckImpl(table);
-    }
-    if (_expressions.size() == 0)
-    {
-        _expressionType = nullptr;
-    }
-    else
-    {
-        _expressionType = _expressions.back()->hasValue() ? _expressions.back()->expressionType() : nullptr;
-    }
-}
-
-void Negation::semanticCheckImpl(SymbolTable& table)
-{
-    _expression->semanticCheckImpl(table);
-    checkHasValue(_expression);
-    if (!_expression->expressionType()->isInt())
-    {
-        semanticError("Negation is invalid");
-    }
-    _expressionType = _expression->expressionType();
-}
-
-void Call::semanticCheckImpl(SymbolTable& table)
-{
-    for (auto& exp : _arguments)
-    {
-        exp->semanticCheckImpl(table);
-    }
-    auto ty = table.checkFunction(_identifier);
-    if (ty == nullptr)
-    {
-        semanticError("Function does not exist");
-    }
-    if (ty->parameters().size() != _arguments.size())
-    {
-        semanticError("Argument number mismatch");
-    }
-    for (size_t i = 0; i < _arguments.size(); ++i)
-    {
-        _arguments[i]->semanticCheckImpl(table);
-        checkHasValue(_arguments[i]);
-        if (*_arguments[i]->expressionType() != *table.checkType(ty->parameters()[i].typeId()))
-        {
-            semanticError("Type mismatch");
-        }
-    }
-    if (ty->returnType() == "")
-    {
-        _expressionType = nullptr;
-    }
-    else
-    {
-        _expressionType = table.checkType(ty->returnType());
-        if (_expressionType == nullptr)
-        {
-            semanticError("Return type not exist");
-        }
-    }
+    return _expressionType;
 }
 
 
-void Infix::semanticCheckImpl(SymbolTable& table)
-{
-    _left->semanticCheckImpl(table);
-    _right->semanticCheckImpl(table);
-    checkHasValue(_left);
-    checkHasValue(_right);
-    semanticCheckInfix(table);
-
-    _expressionType = table.checkType("int");
-}
-
-void Infix::semanticCheckInfix(SymbolTable& table)
-{
-    if (_left->expressionType()->isInt() && _right->expressionType()->isInt())
-    {
-        return;
-    }
-    semanticError("Expression type not valid");
-}
-
-void Eq::semanticCheckInfix(SymbolTable& table)
-{
-    if (*_left->expressionType() != *_right->expressionType())
-    {
-        semanticError("Type mismatch in equlity comparison");
-    }
-}
-
-void Ne::semanticCheckInfix(SymbolTable& table)
-{
-    if (*_left->expressionType() != *_right->expressionType())
-    {
-        semanticError("Type mismatch in inequlity comparison");
-    }
-}
-template<class T>
-static void checkComparisonImpl(T* ths, Expression* l, Expression* r)
-{
-    if (*l->expressionType() == *r->expressionType())
-    {
-        if (l->expressionType()->isInt() || r->expressionType()->isString())
-        {
-            return;
-        }
-    }
-    ths->semanticError("Type should be int or string in comparison");
-}
-void Gt::semanticCheckInfix(SymbolTable& table)
-{
-    checkComparisonImpl(this, _left.get(), _right.get());
-}
-
-void Ge::semanticCheckInfix(SymbolTable& table)
-{
-    checkComparisonImpl(this, _left.get(), _right.get());
-}
-
-void Lt::semanticCheckInfix(SymbolTable& table)
-{
-    checkComparisonImpl(this, _left.get(), _right.get());
-}
-
-void Le::semanticCheckInfix(SymbolTable& table)
-{
-    checkComparisonImpl(this, _left.get(), _right.get());
-}
-
-void ArrayCreate::semanticCheckImpl(SymbolTable& table)
-{
-    auto ty = table.checkType(_typeID);
-    if (ty == nullptr)
-    {
-        semanticError("Type not exist");
-    }
-    _size->semanticCheckImpl(table);
-    checkHasValue(_size);
-    _initializer->semanticCheckImpl(table);
-    checkHasValue(_initializer);
-    if (!_size->expressionType()->isInt())
-    {
-        semanticError("Array size is not int");
-    }
-    if (*_initializer->expressionType() != *ty)
-    {
-        semanticError("Array initializer type mismatch");
-    }
-    _expressionType = SymbolTable::getArrayType(_typeID);
-}
-
-void Break::semanticCheckImpl(SymbolTable& table)
+IdentifierTypeDeclaration::IdentifierTypeDeclaration(std::string id, std::string typeID)
+    : _identifier(std::move(id))
+    , _typeID(std::move(typeID))
 {
 }
 
-void RecordCreate::semanticCheckImpl(SymbolTable& table)
+const std::string& IdentifierTypeDeclaration::identifier() const
 {
-    auto ty = table.checkType(_typeID);
-    if (ty == nullptr)
-    {
-        semanticError("Record name not exist");
-    }
-    if (!ty->isRecord())
-    {
-        semanticError("Type name is not record");
-    }
-    auto recTy = static_cast<const RecordType*>(ty);
-    if (recTy->fields().size() != _fields.size())
-    {
-        semanticError("Number of fields mismatch");
-    }
-    for (size_t i = 0; i < _fields.size(); ++i)
-    {
-        if (_fields[i].identifier() != recTy->fields()[i].identifier())
-        {
-            _fields[i].semanticError("Field name mismatch");
-        }
-        _fields[i].initializer()->semanticCheckImpl(table);
-        checkHasValue(_fields[i].initializer());
-        if (*_fields[i].initializer()->expressionType() != *table.checkType(recTy->fields()[i].typeId()))
-        {
-            _fields[i].semanticError("Initializer type mismatch");
-        }
-    }
-    _expressionType = ty;
+    return _identifier;
 }
 
-void Assignment::semanticCheckImpl(SymbolTable& table)
+const std::string& IdentifierTypeDeclaration::typeId() const
 {
-    _left->semanticCheckImpl(table);
-    checkHasValue(_left);
-    if (!_left->isLValue())
-    {
-        _left->semanticError("Left hand side is not lvalue");
-    }
-    _right->semanticCheckImpl(table);
-    checkHasValue(_right);
-    if (*_left->expressionType() == *_right->expressionType())
-    {
-        return;
-    }
-    _right->semanticError("Type mismatch");
+    return _typeID;
 }
 
-void IfThenElse::semanticCheckImpl(SymbolTable& table)
+bool IdentifierTypeDeclaration::escape() const
 {
-    _condition->semanticCheckImpl(table);
-    checkHasValue(_condition);
-    if (!_condition->expressionType()->isInt())
+    return _escape;
+}
+
+void IdentifierTypeDeclaration::escape(bool value)
+{
+    _escape = value;
+}
+
+VariableDeclaration::VariableDeclaration(std::string id, std::string typeID, Expression* exp)
+    : IdentifierTypeDeclaration(std::move(id), std::move(typeID))
+    , _initializer(exp)
+{
+}
+
+const std::unique_ptr<Expression>& VariableDeclaration::initializer() const
+{
+    return _initializer;
+}
+
+TypeDeclaration::TypeDeclaration(std::string typeID, Type* type)
+    : _typeID(std::move(typeID))
+    , _type(type)
+{
+}
+
+const std::string& TypeDeclaration::typeId() const
+{
+    return _typeID;
+}
+
+const std::unique_ptr<Type>& TypeDeclaration::type() const
+{
+    return _type;
+}
+
+FunctionParameter::FunctionParameter(std::string id, std::string typeID)
+    : IdentifierTypeDeclaration(std::move(id), std::move(typeID))
+{
+}
+
+FunctionDeclaration::FunctionDeclaration(std::string identifier, std::vector<FunctionParameter>& params, std::string returnType, Expression* body)
+    : _identifier(std::move(identifier))
+    , _parameters(std::move(params))
+    , _returnType(std::move(returnType))
+    , _body(body)
+{
+}
+
+const std::string& FunctionDeclaration::identifier() const
+{
+    return _identifier;
+}
+
+const std::vector<FunctionParameter>& FunctionDeclaration::parameters() const
+{
+    return _parameters;
+}
+
+const std::string& FunctionDeclaration::returnType() const
+{
+    return _returnType;
+}
+
+const std::unique_ptr<Expression>& FunctionDeclaration::body() const
+{
+    return _body;
+}
+
+bool Type::isInt() const
+{
+    return false;
+}
+
+bool Type::isString() const
+{
+    return false;
+}
+
+bool Type::isArray() const
+{
+    return false;
+}
+
+bool Type::isRecord() const
+{
+    return false;
+}
+
+IdentifierType::IdentifierType(std::string id)
+    : _identifier(std::move(id))
+{
+}
+
+bool IdentifierType::isInt() const
+{
+    return _identifier == "int";
+}
+
+bool IdentifierType::isString() const
+{
+    return _identifier == "string";
+}
+
+const std::string& IdentifierType::identifier() const
+{
+    return _identifier;
+}
+
+Type::Kind IdentifierType::kind() const
+{
+    return Id;
+}
+
+ArrayType::ArrayType(std::string id)
+    : _typeID(std::move(id))
+{
+}
+
+bool ArrayType::isArray() const
+{
+    return true;
+}
+
+const std::string& ArrayType::typeId() const
+{
+    return _typeID;
+}
+
+Type::Kind ArrayType::kind() const
+{
+    return Array;
+}
+
+FieldDeclaration::FieldDeclaration(std::string id, std::string typeID)
+    : _identifier(std::move(id))
+    , _typeID(std::move(typeID))
+{
+}
+
+const std::string& FieldDeclaration::identifier() const
+{
+    return _identifier;
+}
+
+const std::string& FieldDeclaration::typeId() const
+{
+    return _typeID;
+}
+
+RecordType::RecordType(std::vector<FieldDeclaration>& fields)
+    : _fields(std::move(fields))
+{
+}
+
+bool RecordType::isRecord() const
+{
+    return true;
+}
+
+const std::vector<FieldDeclaration>& RecordType::fields() const
+{
+    return _fields;
+}
+
+Type::Kind RecordType::kind() const
+{
+    return Record;
+}
+
+Identifier::Identifier(std::string id)
+    : _identifier(std::move(id))
+{
+}
+
+const std::string& Identifier::identifier() const
+{
+    return _identifier;
+}
+
+Subscript::Subscript(Expression* l, Expression* r)
+    : _left(l)
+    , _right(r)
+{
+}
+
+const std::unique_ptr<Expression>& Subscript::left() const
+{
+    return _left;
+}
+
+const std::unique_ptr<Expression>& Subscript::right() const
+{
+    return _right;
+}
+
+FieldExpression::FieldExpression(Expression* l, std::string r)
+    : _left(l)
+    , _identifier(std::move(r))
+{
+}
+
+const std::unique_ptr<Expression>& FieldExpression::left() const
+{
+    return _left;
+}
+
+const std::string& FieldExpression::identifier() const
+{
+    return _identifier;
+}
+
+IntLiteral::IntLiteral(int v)
+    : _value(v)
+{
+}
+
+int IntLiteral::value() const
+{
+    return _value;
+}
+
+StringLiteral::StringLiteral(std::string v)
+    : _value(v)
+{
+}
+
+const std::string& StringLiteral::value() const
+{
+    return _value;
+}
+
+Sequence::Sequence(std::vector<Expression*>& exp)
+    : _expressions(exp.begin(), exp.end())
+{
+}
+
+const std::vector<std::unique_ptr<Expression>>& Sequence::expressions() const
+{
+    return _expressions;
+}
+
+Negation::Negation(Expression* exp)
+    : _expression(exp)
+{
+}
+
+const std::unique_ptr<Expression>& Negation::expression() const
+{
+    return _expression;
+}
+
+Call::Call(std::string id, std::vector<Expression*> args)
+    : _identifier(std::move(id))
+    , _arguments(args.begin(), args.end())
+{
+}
+
+const std::string& Call::identifier() const
+{
+    return _identifier;
+}
+
+const std::vector<std::unique_ptr<Expression>>& Call::arguments() const
+{
+    return _arguments;
+}
+
+Infix::Infix(Expression* l, Expression* r)
+    : _left(l)
+    , _right(r)
+{
+}
+
+const std::unique_ptr<Expression>& Infix::left() const
+{
+    return _left;
+}
+
+const std::unique_ptr<Expression>& Infix::right() const
+{
+    return _right;
+}
+
+Eq::Eq(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+Ne::Ne(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+Gt::Gt(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+Ge::Ge(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+Lt::Lt(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+Le::Le(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+Add::Add(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+Sub::Sub(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+Mul::Mul(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+Div::Div(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+And::And(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+Or::Or(Expression* l, Expression* r)
+    : Infix(l, r)
+{
+}
+
+ArrayCreate::ArrayCreate(std::string typeId, Expression* expression, Expression* initializer)
+    : _typeID(std::move(typeId))
+    , _size(expression)
+    , _initializer(initializer)
+{
+}
+
+const std::string& ArrayCreate::typeId() const
+{
+    return _typeID;
+}
+
+const std::unique_ptr<Expression>& ArrayCreate::size() const
+{
+    return _size;
+}
+
+const std::unique_ptr<Expression>& ArrayCreate::initializer() const
+{
+    return _initializer;
+}
+
+FieldInitializer::FieldInitializer(std::string id, Expression* initializer)
+    : _identifier(std::move(id))
+    , _initializer(initializer)
+{
+}
+
+const std::string& FieldInitializer::identifier() const
+{
+    return _identifier;
+}
+
+const std::unique_ptr<Expression>& FieldInitializer::initializer() const
+{
+    return _initializer;
+}
+
+FieldCreate::FieldCreate(std::string id, Expression* init)
+    : _identifier(std::move(id))
+    , _initializer(init)
+{
+}
+
+const std::string& FieldCreate::identifier() const
+{
+    return _identifier;
+}
+
+const std::unique_ptr<Expression>& FieldCreate::initializer() const
+{
+    return _initializer;
+}
+
+RecordCreate::RecordCreate(std::string id, std::vector<std::tuple<std::string, Expression*, location>>& fields)
+    : _typeID(std::move(id))
+    , _fields()
+{
+    _fields.reserve(fields.size());
+    for (auto& p : fields)
     {
-        _condition->semanticError("Condition should be int type");
-    }
-    _thenBranch->semanticCheckImpl(table);
-    _elseBranch->semanticCheckImpl(table);
-    if (_thenBranch->hasValue() && _elseBranch->hasValue())
-    {
-        if (*_thenBranch->expressionType() == *_elseBranch->expressionType())
-        {
-            _expressionType = _thenBranch->expressionType();
-        }
-        else
-        {
-            semanticError("Type in two branches mismatch");
-        }
-    }
-    else if (!_thenBranch->hasValue() && !_elseBranch->hasValue())
-    {
-        return;
-    }
-    else
-    {
-        semanticError("Two branches should either has same type or has no value");
+        _fields.emplace_back(std::get<0>(p), std::get<1>(p));
+        _fields.back().loc(std::get<2>(p));
     }
 }
 
-void IfThen::semanticCheckImpl(SymbolTable& table)
+const std::string& RecordCreate::typeId() const
 {
-    _condition->semanticCheckImpl(table);
-    checkHasValue(_condition);
-    if (!_condition->expressionType()->isInt())
-    {
-        _condition->semanticError("Condition should be int type");
-    }
-    _thenBranch->semanticCheckImpl(table);
-    if (_thenBranch->hasValue())
-    {
-        _thenBranch->semanticError("If then expression should not have value");
-    }
+    return _typeID;
 }
 
-void While::semanticCheckImpl(SymbolTable& table)
+const std::vector<FieldCreate>& RecordCreate::fields() const
 {
-    _condition->semanticCheckImpl(table);
-    checkHasValue(_condition);
-    if (!_condition->expressionType()->isInt())
-    {
-        _condition->semanticError("Condition should be int type");
-    }
-    _body->semanticCheckImpl(table);
-    if (_body->hasValue())
-    {
-        _body->semanticError("While body should not have value");
-    }
+    return _fields;
 }
 
-void For::semanticCheckImpl(SymbolTable& table)
+Assignment::Assignment(Expression* l, Expression* r)
+    : _left(l)
+    , _right(r)
 {
-    ScopeGuard g(table);
-
-    _lowerBound->semanticCheckImpl(table);
-    _upperBound->semanticCheckImpl(table);
-    checkHasValue(_lowerBound);
-    checkHasValue(_lowerBound);
-    if (!_lowerBound->expressionType()->isInt())
-    {
-        _lowerBound->semanticError("Expression should be int");
-    }
-    if (!_upperBound->expressionType()->isInt())
-    {
-        _upperBound->semanticError("Expression should be int");
-    }
-    table.addVariable(_identifier, "int");
-    _body->semanticCheckImpl(table);
-    if (_body->hasValue())
-    {
-        _body->semanticError("For body should not have value");
-    }
 }
 
-void Let::semanticCheckImpl(SymbolTable& table)
+const std::unique_ptr<Expression>& Assignment::left() const
 {
-    ScopeGuard g(table);
-    for (auto& decl : _bindings)
-    {
-        decl->semanticCheckImpl(table);
-    }
-    for (auto& decl : _bindings)
-    {
-        decl->semanticCheckInside(table);
-    }
-    for (auto& exp : _body)
-    {
-        exp->semanticCheckImpl(table);
-    }
-    if (_body.size() != 0)
-    {
-        _expressionType = _body.back()->hasValue() ? _body.back()->expressionType() : nullptr;
-    }
+    return _left;
 }
+
+const std::unique_ptr<Expression>& Assignment::right() const
+{
+    return _right;
+}
+
+IfThenElse::IfThenElse(Expression* cond, Expression* then, Expression* els)
+    : _condition(cond)
+    , _thenBranch(then)
+    , _elseBranch(els)
+{
+}
+
+const std::unique_ptr<Expression>& IfThenElse::condition() const
+{
+    return _condition;
+}
+
+const std::unique_ptr<Expression>& IfThenElse::thenBranch() const
+{
+    return _thenBranch;
+}
+
+const std::unique_ptr<Expression>& IfThenElse::elseBranch() const
+{
+    return _elseBranch;
+}
+
+IfThen::IfThen(Expression* cond, Expression* then)
+    : _condition(cond)
+    , _thenBranch(then)
+{
+}
+
+const std::unique_ptr<Expression>& IfThen::condition() const
+{
+    return _condition;
+}
+
+const std::unique_ptr<Expression>& IfThen::thenBranch() const
+{
+    return _thenBranch;
+}
+
+While::While(Expression* cond, Expression* body)
+    : _condition(cond)
+    , _body(body)
+{
+}
+
+const std::unique_ptr<Expression>& While::condition() const
+{
+    return _condition;
+}
+
+const std::unique_ptr<Expression>& While::body() const
+{
+    return _body;
+}
+
+For::For(std::string id, Expression* l, Expression* r, Expression* body)
+    : _identifier(std::move(id))
+    , _lowerBound(l)
+    , _upperBound(r)
+    , _body(body)
+{
+}
+
+const std::string& For::identifier() const
+{
+    return _identifier;
+}
+
+const std::unique_ptr<Expression>& For::lowerBound() const
+{
+    return _lowerBound;
+}
+
+const std::unique_ptr<Expression>& For::upperBound() const
+{
+    return _upperBound;
+}
+
+const std::unique_ptr<Expression>& For::body() const
+{
+    return _body;
+}
+
+Let::Let(std::vector<Declaration*> bindings, std::vector<Expression*> body)
+    : _bindings(bindings.begin(), bindings.end())
+    , _body(body.begin(), body.end())
+{
+}
+
+const std::vector<std::unique_ptr<Declaration>>& Let::bindings() const
+{
+    return _bindings;
+}
+
+const std::vector<std::unique_ptr<Expression>>& Let::body() const
+{
+    return _body;
+}
+
 
 bool operator==(const Type& l, const Type& r)
 {
@@ -576,4 +639,5 @@ bool operator!=(const Type& l, const Type& r)
 {
     return !(l == r);
 }
+
 }
