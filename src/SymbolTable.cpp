@@ -98,11 +98,16 @@ void SymbolTable::initializeIntrinsic()
 Type* SymbolTable::getArrayType(std::string& typeId)
 {
     auto r = _tempBuffer.find(typeId);
+    assert(typeId == "int" || typeId == "string");
     if (r == _tempBuffer.end())
     {
-        return _tempBuffer.emplace(typeId, new ArrayType(typeId)).first->second.get();
+        auto p = new ArrayType(typeId);
+        _tempBuffer.emplace(typeId, std::unique_ptr<Type>(p));
+        return p;
     }
-    return r->second.get();
+    auto p = r->second.get();
+    assert(dynamic_cast<Type*>(p) != nullptr);
+    return static_cast<Type*>(p);
 }
 
 Type* SymbolTable::getNil()
@@ -128,7 +133,7 @@ std::map<std::string, FunctionDeclaration*>& SymbolTable::funcs()
 {
     return _funcTable[_currDepth - 1];
 }
-
+/*
 bool SymbolTable::addVariable(std::string const& name, std::string const& typeId)
 {
     if (vars().find(name) != vars().end())
@@ -142,14 +147,28 @@ bool SymbolTable::addVariable(std::string const& name, std::string const& typeId
     }
     return addVariable(name, ty);
 }
+*/
 
-bool SymbolTable::addVariable(std::string const& name, Type* type)
+bool SymbolTable::addVariable(std::string const& name, IdentifierTypeDeclaration* type)
 {
     if (vars().find(name) != vars().end())
     {
         return false;
     }
     vars().emplace(name, type);
+    return true;
+}
+
+bool SymbolTable::addLoopVariable(std::string const& name)
+{
+    assert(vars().find(name) == vars().end());
+    assert(name != "int" && name != "string");
+    auto p = new VariableDeclaration(name, "int", nullptr);
+
+    _tempBuffer.emplace(name, std::unique_ptr<IdentifierTypeDeclaration>(p));
+
+    vars().emplace(name, p);
+
     return true;
 }
 
@@ -233,6 +252,6 @@ ScopeGuard::~ScopeGuard()
     ref.exitScope();
 }
 
-std::map<std::string, std::unique_ptr<Type>> SymbolTable::_tempBuffer;
+std::map<std::string, std::unique_ptr<ASTNode>> SymbolTable::_tempBuffer;
 
 }

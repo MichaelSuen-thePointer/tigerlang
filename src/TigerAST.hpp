@@ -122,6 +122,8 @@ class FunctionParameter : public IdentifierTypeDeclaration
 {
 public:
     FunctionParameter(std::string id, std::string typeID);
+
+    void semanticCheckInside(SymbolTable& table) override;
 };
 
 class FunctionDeclaration : public Declaration

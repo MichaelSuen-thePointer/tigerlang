@@ -11,12 +11,13 @@ class Type;
 class FunctionDeclaration;
 class IdentifierType;
 class IdentifierTypeDeclaration;
+class ASTNode;
 class SymbolTable
 {
     std::vector<std::map<std::string, IdentifierTypeDeclaration*>> _varTable;
     std::vector<std::map<std::string, Type*>> _typeTable;
     std::vector<std::map<std::string, FunctionDeclaration*>> _funcTable;
-    static std::map<std::string, std::unique_ptr<Type>> _tempBuffer;
+    static std::map<std::string, std::unique_ptr<ASTNode>> _tempBuffer;
     size_t _currDepth = 1;
 public:
     SymbolTable();
@@ -30,9 +31,11 @@ private:
     std::map<std::string, Type*>& types();
     std::map<std::string, FunctionDeclaration*>& funcs();
 public:
-    bool addVariable(std::string const& name, std::string const& typeId);
+    //bool addVariable(std::string const& name, std::string const& typeId);
 
-    bool addVariable(std::string const& name, Type* type);
+    bool addVariable(std::string const& name, IdentifierTypeDeclaration* type);
+
+    bool addLoopVariable(std::string const& name);
 
     bool addType(std::string const& name, Type* type);
 
@@ -42,7 +45,7 @@ public:
 
     Type* checkType(std::string const& name);
 
-    IdentifierTypeDeclaration* SymbolTable::checkVariable(std::string const& name, bool& inCurrScope);
+    IdentifierTypeDeclaration* checkVariable(std::string const& name, bool& inCurrScope);
 
     FunctionDeclaration* checkFunction(std::string const& name);
 
@@ -54,7 +57,7 @@ private:
     static void advance(size_t depth, T& table);
 
     template <class T>
-    typename T::mapped_type SymbolTable::check(std::string const& name, std::vector<T>& table, size_t& foundDepth);
+    typename T::mapped_type check(std::string const& name, std::vector<T>& table, size_t& foundDepth);
 };
 
 template <class T>

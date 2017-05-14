@@ -44,14 +44,14 @@ void VariableDeclaration::semanticCheckImpl(SymbolTable& table)
     if (_typeID == "")
     {
         auto ty = _initializer->expressionType();
-        if (table.addVariable(_identifier, ty) == false)
+        if (table.addVariable(_identifier, this) == false)
         {
             semanticError("Duplicate variable name");
         }
     }
     else
     {
-        table.addVariable(_identifier, _typeID);
+        table.addVariable(_identifier, this);
     }
 }
 
@@ -81,6 +81,11 @@ void TypeDeclaration::semanticCheckInside(SymbolTable& table)
     _type->semanticCheckImpl(table);
 }
 
+void FunctionParameter::semanticCheckInside(SymbolTable&)
+{
+    assert(0);
+}
+
 void FunctionDeclaration::semanticCheckImpl(SymbolTable& table)
 {
     if (table.addFunction(_identifier, this) == false)
@@ -103,7 +108,7 @@ void FunctionDeclaration::semanticCheckInside(SymbolTable& table)
         {
             param.semanticError("Type not exist");
         }
-        table.addVariable(param.identifier(), param.typeId());
+        table.addVariable(param.identifier(), &param);
     }
     _body->semanticCheckImpl(table);
     if (_returnType != "")
@@ -521,7 +526,7 @@ void For::semanticCheckImpl(SymbolTable& table)
     {
         _upperBound->semanticError("Expression should be int");
     }
-    table.addVariable(_identifier, "int");
+    table.addLoopVariable(_identifier);
     _body->semanticCheckImpl(table);
     if (_body->hasValue())
     {
