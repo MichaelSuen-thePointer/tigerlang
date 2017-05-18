@@ -7,21 +7,35 @@ namespace tiger
 {
 namespace ir
 {
-
+class IRExpression;
+class IRStatement;
 class IRTNode
 {
 public:
     virtual ~IRTNode() = default;
+
+    virtual IRExpression* toExpression() = 0;
+    virtual IRStatement* toStatement() = 0;
 };
 
 class IRExpression : public IRTNode
 {
-
+public:
+    IRExpression* toExpression() override
+    {
+        return this;
+    }
+    IRStatement* toStatement() override;
 };
 
 class IRStatement : public IRTNode
 {
-
+public:
+    IRStatement* toStatement() override
+    {
+        return this;
+    }
+    IRExpression* toExpression() override;
 };
 
 class Constant : public IRExpression
@@ -29,6 +43,10 @@ class Constant : public IRExpression
 protected:
     int _value;
 public:
+    static Constant* newStaticLinkOffset();
+
+    static Constant* newWordSize();
+
     explicit Constant(int value)
         : _value(value)
     {
@@ -64,15 +82,27 @@ class IRMoveTarget : public IRExpression
 class TemporaryVariable : public IRMoveTarget
 {
 protected:
-    int _id;
+    std::string _id;
+    static int _internalCounter;
 public:
-
-    explicit TemporaryVariable(int id)
-        : _id(id)
+    static TemporaryVariable* format(const std::string& desc, int line, int column)
+    {
+        return new TemporaryVariable(desc + std::to_string(line) + "_" + std::to_string(column));
+    }
+    static TemporaryVariable* newFP()
+    {
+        return new TemporaryVariable("fp");
+    }
+    static TemporaryVariable* newSP()
+    {
+        return new TemporaryVariable("sp");
+    }
+    explicit TemporaryVariable(std::string id)
+        : _id(std::move(id))
     {
     }
 
-    int id() const
+    const std::string& id() const
     {
         return _id;
     }
@@ -81,15 +111,15 @@ public:
 class MemoryAccess : public IRMoveTarget
 {
 protected:
-    int _offset;
+    std::unique_ptr<IRExpression> _offset;
 public:
 
-    explicit MemoryAccess(int offset)
+    explicit MemoryAccess(IRExpression* offset)
         : _offset(offset)
     {
     }
 
-    int offset() const
+    const std::unique_ptr<IRExpression>& offset() const
     {
         return _offset;
     }
@@ -201,19 +231,24 @@ public:
 class FunctionCall : public IRExpression
 {
 protected:
-    std::string _name;
+    std::unique_ptr<IRExpression> _func;
     std::vector<std::unique_ptr<IRExpression>> _parameters;
 public:
-    FunctionCall(std::string name, std::vector<IRExpression*>& exp)
-        : _name(std::move(name))
+    FunctionCall(IRExpression* func, std::vector<IRExpression*>& exp)
+        : _func(func)
         , _parameters(exp.begin(), exp.end())
     {
         exp.clear();
     }
 
-    const std::string& name() const
+    FunctionCall(IRExpression* func, std::vector<IRExpression*>&& exp)
+        : FunctionCall(func, exp)
     {
-        return _name;
+    }
+
+    const std::unique_ptr<IRExpression>& function() const
+    {
+        return _func;
     }
 
     const std::vector<std::unique_ptr<IRExpression>>& parameters() const
@@ -266,12 +301,12 @@ public:
     }
 };
 
-class Expression : public IRStatement
+class ExpressionStatement : public IRStatement
 {
 protected:
     std::unique_ptr<IRExpression> _exp;
 public:
-    explicit Expression(IRExpression* exp)
+    explicit ExpressionStatement(IRExpression* exp)
         : _exp(exp)
     {
     }
@@ -282,26 +317,43 @@ public:
     }
 };
 
+class Label : public IRStatement
+{
+protected:
+    std::string _name;
+public:
+    static Label* format(const std::string& desc, int line, int column)
+    {
+        return new Label(name(desc, line, column));
+    }
+    static std::string name(const std::string& desc, int line, int column)
+    {
+        return desc + std::to_string(line) + "_" + std::to_string(column);
+    }
+    explicit Label(std::string name)
+        : _name(std::move(name))
+    {
+    }
+
+    const std::string& name() const
+    {
+        return _name;
+    }
+};
+
 class Jump : public IRStatement
 {
 protected:
-    std::unique_ptr<IRExpression> _target;
-    std::vector<std::unique_ptr<Expression>> _allTargets;
+    std::unique_ptr<Label> _target;
 public:
-    Jump(IRExpression* target, std::vector<IRExpression*>& allTargets)
-        : _target(target), _allTargets(allTargets.begin(), allTargets.end())
+    explicit Jump(Label* target)
+        : _target(target)
     {
-        allTargets.clear();
     }
 
-    const std::unique_ptr<IRExpression>& target() const
+    const std::unique_ptr<Label>& target() const
     {
         return _target;
-    }
-
-    const std::vector<std::unique_ptr<Expression>>& allTargets() const
-    {
-        return _allTargets;
     }
 };
 
@@ -313,6 +365,8 @@ protected:
     std::string _trueBranch;
     std::string _falseBranch;
 public:
+    template<class T>
+    static std::unique_ptr<CompareJump> makeCJump(IRExpression* left, IRExpression* right, int li, int co);
     CompareJump(IRExpression* left, IRExpression* right,
         std::string trueBranch, std::string falseBranch)
         : _left(left), _right(right), _trueBranch(std::move(trueBranch)), _falseBranch(std::move(falseBranch))
@@ -394,13 +448,13 @@ public:
     }
 };
 
-class Sequence : public IRStatement
+class SequenceExpression : public IRStatement
 {
 protected:
     std::unique_ptr<IRStatement> _left;
     std::unique_ptr<IRStatement> _right;
 public:
-    Sequence(IRStatement* left, IRStatement* right)
+    SequenceExpression(IRStatement* left, IRStatement* right)
         : _left(left), _right(right)
     {
     }
@@ -416,23 +470,34 @@ public:
     }
 };
 
-class Label : public IRTNode
+class Nop : public IRStatement
 {
-protected:
-    std::string _name;
-public:
-    explicit Label(std::string name)
-        : _name(std::move(name))
-    {
-    }
-
-    const std::string& name() const
-    {
-        return _name;
-    }
 };
 
 
+template <class T>
+std::unique_ptr<CompareJump> CompareJump::makeCJump(IRExpression* left, IRExpression* right, int li, int co)
+{
+    auto falseBranch = new SequenceExpression(
+        Label::format("iffalse", li, co),
+        new Move(TemporaryVariable::format("ifresult", li, co), new Constant(1)));
+    auto gotoEnd = new SequenceExpression(
+        new Jump(Label::format("ifend", li, co)),
+        falseBranch);
+    auto trueBranch = new SequenceExpression(
+        Label::format("iftrue", li, co),
+        new SequenceExpression(
+            new Move(TemporaryVariable::format("ifresult", li, co), new Constant(0)),
+            gotoEnd));
+    auto ifEnd = new EffectSequence(Label::format("ifend", li, co),
+        TemporaryVariable::format("ifresult", li, co));
+    auto ifJump = new T(left, right,
+        Label::name("iftrue", li, co),
+        Label::name("iffalse", li, co));
+    return std::make_unique<EffectSequence>(
+        new SequenceExpression(ifJump, trueBranch),
+        ifEnd);
+}
 
 }
 }

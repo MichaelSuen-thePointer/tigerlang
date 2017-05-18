@@ -2,14 +2,19 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "location.hh"
 #include <cassert>
+#include "location.hh"
 #include "SymbolTable.hpp"
+#include "TigerFrame.hpp"
 
 namespace tiger
 {
 class SymbolTable;
 class Type;
+namespace ir
+{
+class IRTNode;
+}
 class ASTNode
 {
 protected:
@@ -20,7 +25,6 @@ public:
 
     const location& loc() const;
     void semanticCheck();
-
 
     [[noreturn]]
     void semanticError(std::string const& msg) const;
@@ -56,6 +60,8 @@ public:
     bool isLValue() const;
 
     Type* expressionType();
+
+    virtual std::unique_ptr<ir::IRTNode> toIR(Frame& f) = 0;
 };
 
 class Declaration : public ASTNode
@@ -135,7 +141,7 @@ protected:
     std::unique_ptr<Expression> _body;
 public:
     FunctionDeclaration(std::string identifier, std::vector<FunctionParameter>& params,
-                        std::string returnType, Expression* body);
+        std::string returnType, Expression* body);
 
     const std::string& identifier() const;
 
@@ -243,8 +249,10 @@ public:
 
     const std::string& identifier() const;
 
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+
 };
 
 class Subscript : public Expression
@@ -260,6 +268,7 @@ public:
 
     const std::unique_ptr<Expression>& right() const;
 
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
@@ -269,7 +278,6 @@ class FieldExpression : public Expression
 protected:
     std::unique_ptr<Expression> _left;
     std::string _identifier;
-
 public:
     FieldExpression(Expression* l, std::string r);
 
@@ -277,6 +285,7 @@ public:
 
     const std::string& identifier() const;
 
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
 };
@@ -286,6 +295,8 @@ class Nil : public Expression
 public:
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class IntLiteral : public Expression
@@ -300,6 +311,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class StringLiteral : public Expression
@@ -314,6 +327,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class Sequence : public Expression
@@ -328,6 +343,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class Negation : public Expression
@@ -342,6 +359,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class Call : public Expression
@@ -359,6 +378,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class Infix : public Expression
@@ -386,7 +407,10 @@ public:
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
+
 class Ne : public Infix
 {
 public:
@@ -394,7 +418,10 @@ public:
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
+
 class Gt : public Infix
 {
 public:
@@ -402,7 +429,10 @@ public:
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
+
 class Ge : public Infix
 {
 public:
@@ -410,7 +440,10 @@ public:
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
+
 class Lt : public Infix
 {
 public:
@@ -418,7 +451,10 @@ public:
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
+
 class Le : public Infix
 {
 public:
@@ -426,38 +462,56 @@ public:
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
+
 class Add : public Infix
 {
 public:
     Add(Expression* l, Expression* r);
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
+
 class Sub : public Infix
 {
 public:
     Sub(Expression* l, Expression* r);
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
+
 class Mul : public Infix
 {
 public:
     Mul(Expression* l, Expression* r);
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
+
 class Div : public Infix
 {
 public:
     Div(Expression* l, Expression* r);
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class And : public Infix
 {
 public:
     And(Expression* l, Expression* r);
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class Or : public Infix
 {
 public:
     Or(Expression* l, Expression* r);
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class ArrayCreate : public Expression
@@ -478,6 +532,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class FieldInitializer : public ASTNode
@@ -512,6 +568,8 @@ class Break : public Expression
 public:
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class RecordCreate : public Expression
@@ -529,6 +587,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class Assignment : public Expression
@@ -546,6 +606,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class IfThenElse : public Expression
@@ -566,6 +628,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class IfThen : public Expression
@@ -583,6 +647,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class While : public Expression
@@ -600,6 +666,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class For : public Expression
@@ -623,6 +691,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 class Let : public Expression
@@ -640,6 +710,8 @@ public:
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
+public:
+    std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
 
 }

@@ -306,7 +306,6 @@ void Call::semanticCheckImpl(SymbolTable& table)
     }
 }
 
-
 void Infix::semanticCheckImpl(SymbolTable& table)
 {
     _left->semanticCheckImpl(table);
