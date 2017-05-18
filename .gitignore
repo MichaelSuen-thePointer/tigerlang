@@ -37,3 +37,8 @@
 *.exe
 *.out
 *.app
+
+# about clion
+CMakeLists.txt
+/.idea
+/cmake-build-debug

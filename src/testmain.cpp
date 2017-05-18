@@ -1,10 +1,13 @@
+#define YYDEBUG 1
 #include <iostream>
+#include <fstream>
 #include "TigerScanner.hpp"
 #include "tiger.tab.hh"
 
 int main()
 {
-    tiger::TigerScanner scanner(&std::cin);
+    std::ifstream ifs("../testcases/queens.tig");
+    tiger::TigerScanner scanner(&ifs);
     std::unique_ptr<tiger::Program> prog;
     tiger::TigerParser parser(scanner, prog);
     //parser.set_debug_level(1);
@@ -16,6 +19,8 @@ int main()
     else
     {
         std::cout << "Parse succeed\n";
+        prog->graphviz();
+        std::cout << prog->graphvizCode;
     }
     try
     {
