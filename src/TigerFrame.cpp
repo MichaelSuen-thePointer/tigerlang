@@ -76,7 +76,7 @@ void TigerFrame::outScope()
 void TigerFrame::addVariable(const std::string& name)
 {
     _scopeOffset.back() -= WordSize;
-    _variables[name] = _scopeOffset.size();
+    _variables[name] = _scopeOffset.back();
 }
 
 void TigerFrame::addParameter(const std::string& name)
@@ -112,14 +112,14 @@ TigerFrame* TigerFrame::frameByName(const std::string& name)
     {
         {
             auto r = current->_variables.find(name);
-            if (r != current->_variables.end() && r->second >= _scopeOffset.back())
+            if (r != current->_variables.end() && r->second >= current->_scopeOffset.back())
             { //栈变量的offset是负的
                 return current;
             }
         }
         {
             auto r = current->_parameters.find(name);
-            if (r != current->_variables.end())
+            if (r != current->_parameters.end())
             {
                 return current;
             }
