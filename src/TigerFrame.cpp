@@ -161,6 +161,11 @@ void Frame::setLoopBreakLabel(std::string label)
     _currentLoopBreakLabel = std::move(label);
 }
 
+const std::map<std::string, std::unique_ptr<ir::IRTNode>>& Frame::functionFragments() const
+{
+    return _functionFragments;
+}
+
 int TigerFrame::currentOffset() const
 {
     return _scopeOffset.back();

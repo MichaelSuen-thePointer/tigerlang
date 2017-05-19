@@ -381,10 +381,12 @@ std::unique_ptr<ir::IRTNode> IfThenElse::toIR(Frame& f)
         auto trueBranch = IRCompare::makeLabelTree(cond->trueBranchLabels(), thenResult);
         auto falseBranch = IRCompare::makeLabelTree(cond->falseBranchLabels(), elseResult);
 
+        auto condStm = cond->statement().release();
+        delete cond;
         return make_unique<EffectSequence>(this,
             new SequenceExpression(nullptr,
                 new SequenceExpression(nullptr,
-                    cond,
+                    condStm,
                     new SequenceExpression(nullptr,
                         new SequenceExpression(nullptr,
                             trueBranch,
@@ -400,10 +402,13 @@ std::unique_ptr<ir::IRTNode> IfThenElse::toIR(Frame& f)
 
         auto trueBranch = IRCompare::makeLabelTree(cond->trueBranchLabels(), thenBranch);
         auto falseBranch = IRCompare::makeLabelTree(cond->falseBranchLabels(), elseBranch);
-
+        
+        auto condStm = cond->statement().release();
+        delete cond;
+        
         return make_unique<SequenceExpression>(nullptr,
             new SequenceExpression(nullptr,
-                cond,
+                condStm,
                 new SequenceExpression(nullptr,
                     new SequenceExpression(nullptr,
                         trueBranch,
@@ -557,16 +562,16 @@ void FunctionDeclaration::addToFrame(Frame& f)
         param.addToFrame(f);
     }
     auto funcName = Label::name(_identifier, loc().begin.line, loc().begin.column, loc().end.column);
-    IRTNode* body;
     if (_body->hasValue())
     {
-        body = _body->toIR(f).release()->toExpression();
+        auto body = _body->toIR(f).release()->toExpression();
+        f.addFunction(funcName, new EffectSequence(this, new Label(funcName), body));
     }
     else
     {
-        body = _body->toIR(f).release()->toStatement();
+        auto body = _body->toIR(f).release()->toStatement();
+        f.addFunction(funcName, new SequenceExpression(this, new Label(funcName), body));
     }
-    f.addFunction(funcName, body);
 }
 
 }

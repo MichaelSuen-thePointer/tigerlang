@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "TigerScanner.hpp"
 #include "tiger.tab.hh"
 #include "TigerFrame.hpp"
@@ -29,5 +30,12 @@ int main()
     }
     tiger::Frame f;
     auto ir = prog->expression()->toIR(f);
+    std::ofstream outFile("IROut.json");
+    ir->dump(outFile);
 
+    for (auto& func : f.functionFragments())
+    {
+        std::ofstream funcDump(std::string("IR") + func.first + ".json");
+        func.second->dump(funcDump);
+    }
 }

@@ -36,6 +36,8 @@ public:
     const std::string& currentLoopBreakLabel() const;
     
     void setLoopBreakLabel(std::string label);
+
+    const std::map<std::string, std::unique_ptr<ir::IRTNode>>& functionFragments() const;
 };
 
 class TigerFrame

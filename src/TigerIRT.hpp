@@ -6,66 +6,48 @@
 namespace tiger
 {
 class ASTNode;
+
 namespace ir
 {
 class IRExpression;
 class IRStatement;
 class IRCompare;
+
 class IRTNode
 {
 protected:
     ASTNode* _ast = nullptr;
 public:
-    explicit IRTNode(ASTNode* ast)
-        : _ast(ast)
-    {
-    }
+    explicit IRTNode(ASTNode* ast);
     virtual ~IRTNode() = default;
 
-    const ASTNode* ast() const
-    {
-        return _ast;
-    }
-    ASTNode* ast()
-    {
-        return _ast;
-    }
+    const ASTNode* ast() const;
+
+    ASTNode* ast();
     virtual IRExpression* toExpression() = 0;
     virtual IRStatement* toStatement() = 0;
     virtual IRCompare* toCompare() = 0;
+
+    virtual void dump(std::ostream& out) = 0;
 };
 
 class IRExpression : public IRTNode
 {
 public:
-    explicit IRExpression(ASTNode* ast)
-        : IRTNode(ast)
-    {
-    }
+    explicit IRExpression(ASTNode* ast);
 
-    IRExpression* toExpression() final override
-    {
-        return this;
-    }
+    IRExpression* toExpression() final override;
     IRStatement* toStatement() final override;
-
     IRCompare* toCompare() final override;
 };
 
 class IRStatement : public IRTNode
 {
 public:
-    explicit IRStatement(ASTNode* ast)
-        : IRTNode(ast)
-    {
-    }
+    explicit IRStatement(ASTNode* ast);
 
-    IRStatement* toStatement() override
-    {
-        return this;
-    }
+    IRStatement* toStatement() override;
     IRExpression* toExpression() override;
-
     IRCompare* toCompare() override;
 };
 
@@ -78,16 +60,10 @@ public:
 
     static Constant* newWordSize();
 
-    explicit Constant(int value)
-        : IRExpression(nullptr)
-        , _value(value)
-    {
-    }
+    explicit Constant(int value);
 
-    int value() const
-    {
-        return _value;
-    }
+    int value() const;
+    void dump(std::ostream& out) override;
 };
 
 class Name : public IRExpression
@@ -95,55 +71,34 @@ class Name : public IRExpression
 protected:
     std::string _name;
 public:
-    Name(ASTNode* ast, std::string name)
-        : IRExpression(ast)
-        , _name(std::move(name))
-    {
-    }
+    Name(ASTNode* ast, std::string name);
 
-    const std::string& name() const
-    {
-        return _name;
-    }
+    const std::string& name() const;
+
+    void dump(std::ostream& out) override;
 };
 
 class IRMoveTarget : public IRExpression
 {
 public:
-    explicit IRMoveTarget(ASTNode* ast)
-        : IRExpression(ast)
-    {
-    }
+    explicit IRMoveTarget(ASTNode* ast);
 };
 
 class TemporaryVariable : public IRMoveTarget
 {
 protected:
     std::string _id;
-    static int _internalCounter;
 public:
-    static TemporaryVariable* format(const std::string& desc, int line, int column, int end)
-    {
-        return new TemporaryVariable(desc + std::to_string(line) + "_" + std::to_string(column) + "_" + std::to_string(end));
-    }
-    static TemporaryVariable* newFP()
-    {
-        return new TemporaryVariable("fp");
-    }
-    static TemporaryVariable* newSP()
-    {
-        return new TemporaryVariable("sp");
-    }
-    explicit TemporaryVariable(std::string id)
-        : IRMoveTarget(nullptr)
-        , _id(std::move(id))
-    {
-    }
+    static TemporaryVariable* format(const std::string& desc, int line, int column, int end);
 
-    const std::string& id() const
-    {
-        return _id;
-    }
+    static TemporaryVariable* newFP();
+
+    static TemporaryVariable* newSP();
+
+    explicit TemporaryVariable(std::string id);
+
+    const std::string& id() const;
+    void dump(std::ostream& out) override;
 };
 
 class MemoryAccess : public IRMoveTarget
@@ -152,16 +107,11 @@ protected:
     std::unique_ptr<IRExpression> _offset;
 public:
 
-    explicit MemoryAccess(ASTNode* ast, IRExpression* offset)
-        : IRMoveTarget(ast)
-        , _offset(offset)
-    {
-    }
+    explicit MemoryAccess(ASTNode* ast, IRExpression* offset);
 
-    const std::unique_ptr<IRExpression>& offset() const
-    {
-        return _offset;
-    }
+    const std::unique_ptr<IRExpression>& offset() const;
+
+    void dump(std::ostream& out) override;
 };
 
 class BinaryOperation : public IRExpression
@@ -170,103 +120,67 @@ public:
     std::unique_ptr<IRExpression> _left;
     std::unique_ptr<IRExpression> _right;
 public:
-    BinaryOperation(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : IRExpression(ast)
-        , _left(left)
-        , _right(right)
-    {
-    }
+    BinaryOperation(ASTNode* ast, IRExpression* left, IRExpression* right);
 
-    const std::unique_ptr<IRExpression>& left() const
-    {
-        return _left;
-    }
+    const std::unique_ptr<IRExpression>& left() const;
 
-    const std::unique_ptr<IRExpression>& right() const
-    {
-        return _right;
-    }
+    const std::unique_ptr<IRExpression>& right() const;
+
+    void dump(std::ostream& out) override;
 };
 
 class Plus : public BinaryOperation
 {
 public:
-    Plus(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : BinaryOperation(ast, left, right)
-    {
-    }
+    Plus(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class Minus : public BinaryOperation
 {
 public:
-    Minus(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : BinaryOperation(ast, left, right)
-    {
-    }
+    Minus(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class Multiply : public BinaryOperation
 {
 public:
-    Multiply(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : BinaryOperation(ast, left, right)
-    {
-    }
+    Multiply(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class Divide : public BinaryOperation
 {
 public:
-    Divide(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : BinaryOperation(ast, left, right)
-    {
-    }
+    Divide(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class LogicalAnd : public BinaryOperation
 {
 public:
-    LogicalAnd(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : BinaryOperation(ast, left, right)
-    {
-    }
+    LogicalAnd(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class LogicalOr : public BinaryOperation
 {
 public:
-    LogicalOr(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : BinaryOperation(ast, left, right)
-    {
-    }
+    LogicalOr(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class Xor : public BinaryOperation
 {
 public:
-    Xor(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : BinaryOperation(ast, left, right)
-    {
-    }
+    Xor(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class LeftShift : public BinaryOperation
 {
 public:
-    LeftShift(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : BinaryOperation(ast, left, right)
-    {
-    }
+    LeftShift(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class RightShift : public BinaryOperation
 {
 public:
-    RightShift(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : BinaryOperation(ast, left, right)
-    {
-    }
+    RightShift(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class FunctionCall : public IRExpression
@@ -275,28 +189,14 @@ protected:
     std::unique_ptr<IRExpression> _func;
     std::vector<std::unique_ptr<IRExpression>> _parameters;
 public:
-    FunctionCall(ASTNode* ast, IRExpression* func, std::vector<IRExpression*>& exp)
-        : IRExpression(ast)
-        , _func(func)
-        , _parameters(exp.begin(), exp.end())
-    {
-        exp.clear();
-    }
+    FunctionCall(ASTNode* ast, IRExpression* func, std::vector<IRExpression*>& exp);
 
-    FunctionCall(ASTNode* ast, IRExpression* func, std::vector<IRExpression*>&& exp)
-        : FunctionCall(ast, func, exp)
-    {
-    }
+    FunctionCall(ASTNode* ast, IRExpression* func, std::vector<IRExpression*>&& exp);
 
-    const std::unique_ptr<IRExpression>& function() const
-    {
-        return _func;
-    }
+    const std::unique_ptr<IRExpression>& function() const;
 
-    const std::vector<std::unique_ptr<IRExpression>>& parameters() const
-    {
-        return _parameters;
-    }
+    const std::vector<std::unique_ptr<IRExpression>>& parameters() const;
+    void dump(std::ostream& out) override;
 };
 
 class EffectSequence : public IRExpression
@@ -305,27 +205,15 @@ protected:
     std::unique_ptr<IRStatement> _left;
     std::unique_ptr<IRExpression> _right;
 public:
-    EffectSequence(ASTNode* ast, IRStatement* left, IRExpression* right)
-        : IRExpression(ast)
-        , _left(left)
-        , _right(right)
-    {
-    }
+    EffectSequence(ASTNode* ast, IRStatement* left, IRExpression* right);
 
-    const std::unique_ptr<IRStatement>& left() const
-    {
-        return _left;
-    }
+    const std::unique_ptr<IRStatement>& left() const;
 
-    const std::unique_ptr<IRExpression>& right() const
-    {
-        return _right;
-    }
+    const std::unique_ptr<IRExpression>& right() const;
 
-    std::unique_ptr<IRExpression>& right()
-    {
-        return _right;
-    }
+    std::unique_ptr<IRExpression>& right();
+
+    void dump(std::ostream& out) override;
 };
 
 class Move : public IRStatement
@@ -334,22 +222,13 @@ protected:
     std::unique_ptr<IRMoveTarget> _target;
     std::unique_ptr<IRExpression> _exp;
 public:
-    Move(ASTNode* ast, IRMoveTarget* target, IRExpression* exp)
-        : IRStatement(ast)
-        , _target(target)
-        , _exp(exp)
-    {
-    }
+    Move(ASTNode* ast, IRMoveTarget* target, IRExpression* exp);
 
-    const std::unique_ptr<IRMoveTarget>& target() const
-    {
-        return _target;
-    }
+    const std::unique_ptr<IRMoveTarget>& target() const;
 
-    const std::unique_ptr<IRExpression>& exp() const
-    {
-        return _exp;
-    }
+    const std::unique_ptr<IRExpression>& exp() const;
+
+    void dump(std::ostream& out) override;
 };
 
 class ExpressionStatement : public IRStatement
@@ -357,16 +236,11 @@ class ExpressionStatement : public IRStatement
 protected:
     std::unique_ptr<IRExpression> _exp;
 public:
-    explicit ExpressionStatement(ASTNode* ast, IRExpression* exp)
-        : IRStatement(ast)
-        , _exp(exp)
-    {
-    }
+    explicit ExpressionStatement(ASTNode* ast, IRExpression* exp);
 
-    const std::unique_ptr<IRExpression>& exp() const
-    {
-        return _exp;
-    }
+    const std::unique_ptr<IRExpression>& exp() const;
+
+    void dump(std::ostream& out) override;
 };
 
 class Label : public IRStatement
@@ -374,24 +248,14 @@ class Label : public IRStatement
 protected:
     std::string _name;
 public:
-    static Label* format(const std::string& desc, int line, int column, int end)
-    {
-        return new Label(name(desc, line, column, end));
-    }
-    static std::string name(const std::string& desc, int line, int column, int end)
-    {
-        return desc + std::to_string(line) + "_" + std::to_string(column) + "_" + std::to_string(end);
-    }
-    explicit Label(std::string name)
-        : IRStatement(nullptr)
-        , _name(std::move(name))
-    {
-    }
+    static Label* format(const std::string& desc, int line, int column, int end);
 
-    const std::string& name() const
-    {
-        return _name;
-    }
+    static std::string name(const std::string& desc, int line, int column, int end);
+
+    explicit Label(std::string name);
+
+    const std::string& name() const;
+    void dump(std::ostream& out) override;
 };
 
 class Jump : public IRStatement
@@ -399,16 +263,10 @@ class Jump : public IRStatement
 protected:
     std::unique_ptr<Label> _target;
 public:
-    explicit Jump(Label* target)
-        : IRStatement(nullptr)
-        , _target(target)
-    {
-    }
+    explicit Jump(Label* target);
 
-    const std::unique_ptr<Label>& target() const
-    {
-        return _target;
-    }
+    const std::unique_ptr<Label>& target() const;
+    void dump(std::ostream& out) override;
 };
 
 class SequenceExpression;
@@ -423,33 +281,20 @@ protected:
 public:
     IRCompare(ASTNode* ast, IRCompareJump* ircjump);
 
-    std::unique_ptr<IRStatement>& statement()
-    {
-        return _statement;
-    }
+    std::unique_ptr<IRStatement>& statement();
 
-    std::vector<std::string>& trueBranchLabels()
-    {
-        return _trueBranchLabels;
-    }
+    std::vector<std::string>& trueBranchLabels();
 
-    std::vector<std::string>& falseBranchLabels()
-    {
-        return _falseBranchLabels;
-    }
+    std::vector<std::string>& falseBranchLabels();
 
-    void addTrueBranchLabel(std::string s)
-    {
-        _trueBranchLabels.push_back(std::move(s));
-    }
-    void addFalseBranchLabel(std::string s)
-    {
-        _falseBranchLabels.push_back(std::move(s));
-    }
+    void addTrueBranchLabel(std::string s);
+
+    void addFalseBranchLabel(std::string s);
     static IRStatement* makeLabelTree(const std::vector<std::string>& labels, IRStatement* stm);
     IRStatement* toStatement() override;
     IRExpression* toExpression() override;
     IRCompare* toCompare() override;
+    void dump(std::ostream& out) override;
 };
 
 class IRCompareJump : public IRStatement
@@ -462,79 +307,50 @@ protected:
 public:
     IRCompareJump(ASTNode* ast, IRExpression* left, IRExpression* right);
 
-    const std::unique_ptr<IRExpression>& left() const
-    {
-        return _left;
-    }
+    const std::unique_ptr<IRExpression>& left() const;
 
-    const std::unique_ptr<IRExpression>& right() const
-    {
-        return _right;
-    }
+    const std::unique_ptr<IRExpression>& right() const;
 
-    const std::string& trueBranch() const
-    {
-        return _trueBranch;
-    }
+    const std::string& trueBranch() const;
 
-    const std::string& falseBranch() const
-    {
-        return _falseBranch;
-    }
+    const std::string& falseBranch() const;
+    void dump(std::ostream& out) override;
 };
 
 class EqCompare : public IRCompareJump
 {
 public:
-    EqCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : IRCompareJump(ast, left, right)
-    {
-    }
+    EqCompare(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class NeCompare : public IRCompareJump
 {
 public:
-    NeCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : IRCompareJump(ast, left, right)
-    {
-    }
+    NeCompare(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class GtCompare : public IRCompareJump
 {
 public:
-    GtCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : IRCompareJump(ast, left, right)
-    {
-    }
+    GtCompare(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class GeCompare : public IRCompareJump
 {
 public:
-    GeCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : IRCompareJump(ast, left, right)
-    {
-    }
+    GeCompare(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class LtCompare : public IRCompareJump
 {
 public:
-    LtCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : IRCompareJump(ast, left, right)
-    {
-    }
+    LtCompare(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class LeCompare : public IRCompareJump
 {
 public:
-    LeCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
-        : IRCompareJump(ast, left, right)
-    {
-    }
+    LeCompare(ASTNode* ast, IRExpression* left, IRExpression* right);
 };
 
 class SequenceExpression : public IRStatement
@@ -544,28 +360,15 @@ protected:
     std::unique_ptr<IRStatement> _right;
 public:
     static IRStatement* makeExpressionTree(const std::vector<IRStatement*> stmts);
-    SequenceExpression(ASTNode* ast, IRStatement* left, IRStatement* right)
-        : IRStatement(ast)
-        , _left(left)
-        , _right(right)
-    {
-    }
 
-    const std::unique_ptr<IRStatement>& left() const
-    {
-        return _left;
-    }
+    SequenceExpression(ASTNode* ast, IRStatement* left, IRStatement* right);
 
-    const std::unique_ptr<IRStatement>& right() const
-    {
-        return _right;
-    }
+    const std::unique_ptr<IRStatement>& left() const;
 
-    std::unique_ptr<IRStatement>& right()
-    {
-        return _right;
-    }
+    const std::unique_ptr<IRStatement>& right() const;
+
+    std::unique_ptr<IRStatement>& right();
+    void dump(std::ostream& out) override;
 };
-
 }
 }
