@@ -1,5 +1,5 @@
 testmain.out :
-	g++ -std=c++11 ASTSemantic.cpp lex.yy.cc SymbolTable.cpp testmain.cpp tiger.tab.cc TigerAST.cpp TigerScanner.cpp -o testmain.out
+	g++ -std=c++11 ASTSemantic.cpp lex.yy.cc SymbolTable.cpp testmain.cpp tiger.tab.cc TigerAST.cpp TigerScanner.cpp ASTIR.cpp IRDump.cpp TigerIRT.cpp TigerFrame.cpp -o testmain.out
 
 lex.yy.cc : tiger.l
 	flex tiger.l
