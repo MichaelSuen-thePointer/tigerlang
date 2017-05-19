@@ -17,7 +17,8 @@ class SymbolTable
     std::vector<std::map<std::string, IdentifierTypeDeclaration*>> _varTable;
     std::vector<std::map<std::string, Type*>> _typeTable;
     std::vector<std::map<std::string, FunctionDeclaration*>> _funcTable;
-    static std::map<std::string, std::unique_ptr<ASTNode>> _tempBuffer;
+    static std::map<std::string, std::unique_ptr<Type>> _tempTypeBuffer;
+    static std::map<std::string, std::unique_ptr<IdentifierTypeDeclaration>> _tempVarBuffer;
     size_t _currDepth = 1;
 public:
     SymbolTable();

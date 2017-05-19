@@ -1,7 +1,8 @@
 #include <iostream>
 #include "TigerScanner.hpp"
 #include "tiger.tab.hh"
-
+#include "TigerFrame.hpp"
+#include "TigerIRT.hpp"
 int main()
 {
     tiger::TigerScanner scanner(&std::cin);
@@ -26,4 +27,7 @@ int main()
     {
         std::cout << e.what() << "\n";
     }
+    tiger::Frame f;
+    auto ir = prog->expression()->toIR(f);
+
 }

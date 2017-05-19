@@ -1,16 +1,25 @@
 #pragma once
-#include "TigerAST.hpp"
+#include <vector>
+#include <memory>
+#include <map>
 
 namespace tiger
 {
 
 class TigerFrame;
+namespace ir
+{
+class IRTNode;
+}
 class Frame
 {
 private:
     std::vector<std::unique_ptr<TigerFrame>> _frameBuffer;
     size_t _depth;
     std::map<std::string, std::string> _stringFragments;
+    std::map<std::string, std::unique_ptr<ir::IRTNode>> _functionFragments;
+    std::string _currentLoopBreakLabel;
+
 public:
     Frame();
 
@@ -21,6 +30,12 @@ public:
     void exitFrame();
 
     void addStringFragments(std::string label, std::string literal);
+
+    void addFunction(std::string name, ir::IRTNode* body);
+
+    const std::string& currentLoopBreakLabel() const;
+    
+    void setLoopBreakLabel(std::string label);
 };
 
 class TigerFrame
@@ -48,6 +63,8 @@ public:
     void addParameter(const std::string& name);
 
     int getOffset(const std::string& name);
+
+    int currentOffset() const;
 
     TigerFrame* frameByName(const std::string& name);
 };

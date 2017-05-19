@@ -1,6 +1,8 @@
-#include "TigerAST.hpp"
 #include <sstream>
 #include <set>
+#include "TigerAST.hpp"
+#include "SymbolTable.hpp"
+
 namespace tiger
 {
 
@@ -37,6 +39,11 @@ void Program::semanticCheckImpl(SymbolTable& table)
     _exp->semanticCheckImpl(table);
 }
 
+Type* IdentifierTypeDeclaration::type() const
+{
+    return _type;
+}
+
 void VariableDeclaration::semanticCheckImpl(SymbolTable& table)
 {
     _initializer->semanticCheckImpl(table);
@@ -44,6 +51,7 @@ void VariableDeclaration::semanticCheckImpl(SymbolTable& table)
     if (_typeID == "")
     {
         auto ty = _initializer->expressionType();
+        _type = ty;
         if (table.addVariable(_identifier, this) == false)
         {
             semanticError("Duplicate variable name");
@@ -67,7 +75,6 @@ void VariableDeclaration::semanticCheckInside(SymbolTable& table)
     }
 }
 
-
 void TypeDeclaration::semanticCheckImpl(SymbolTable& table)
 {
     if (table.addType(_typeID, _type.get()) == false)
@@ -81,6 +88,10 @@ void TypeDeclaration::semanticCheckInside(SymbolTable& table)
     _type->semanticCheckImpl(table);
 }
 
+void TypeDeclaration::addToFrame(Frame& f)
+{
+}
+
 void FunctionParameter::semanticCheckInside(SymbolTable&)
 {
     assert(0);
@@ -91,6 +102,10 @@ void FunctionDeclaration::semanticCheckImpl(SymbolTable& table)
     if (table.addFunction(_identifier, this) == false)
     {
         semanticError("Duplicate function name");
+    }
+    for (auto& param : _parameters)
+    {
+        param.semanticCheckImpl(table);
     }
 }
 
@@ -178,7 +193,7 @@ void Identifier::semanticCheckImpl(SymbolTable& table)
     {
         ty->escape(true);
     }
-    _expressionType = table.checkType(ty->typeId());
+    _expressionType = ty->type();
     assert(_expressionType);
     _lValue = true;
 }
@@ -283,6 +298,7 @@ void Call::semanticCheckImpl(SymbolTable& table)
     {
         semanticError("Argument number mismatch");
     }
+    _func = ty;
     for (size_t i = 0; i < _arguments.size(); ++i)
     {
         _arguments[i]->semanticCheckImpl(table);

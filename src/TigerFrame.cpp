@@ -1,7 +1,14 @@
+#include <cassert>
 #include "TigerFrame.hpp"
+#include "TigerIRT.hpp"
 
 namespace tiger
 {
+const std::string& Frame::currentLoopBreakLabel() const
+{
+    return _currentLoopBreakLabel;
+}
+
 Frame::Frame()
     : _frameBuffer(1)
     , _depth(0)
@@ -37,6 +44,12 @@ void Frame::addStringFragments(std::string label, std::string literal)
 {
     assert(_stringFragments.find(label) == _stringFragments.end());
     _stringFragments[label] = literal;
+}
+
+void Frame::addFunction(std::string name, ir::IRTNode* body)
+{
+    assert(_functionFragments.find(name) == _functionFragments.end());
+    _functionFragments[name].reset(body);
 }
 
 TigerFrame::TigerFrame(TigerFrame* staticLink): _staticLink(staticLink)
@@ -141,5 +154,15 @@ FrameScopeGuard::~FrameScopeGuard()
         assert(_currFrame == _f.currentFrame());
 #endif
     _f.currentFrame()->outScope();
+}
+
+void Frame::setLoopBreakLabel(std::string label)
+{
+    _currentLoopBreakLabel = std::move(label);
+}
+
+int TigerFrame::currentOffset() const
+{
+    return _scopeOffset.back();
 }
 }

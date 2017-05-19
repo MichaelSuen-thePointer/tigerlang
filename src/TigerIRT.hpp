@@ -5,37 +5,68 @@
 
 namespace tiger
 {
+class ASTNode;
 namespace ir
 {
 class IRExpression;
 class IRStatement;
+class IRCompare;
 class IRTNode
 {
+protected:
+    ASTNode* _ast = nullptr;
 public:
+    explicit IRTNode(ASTNode* ast)
+        : _ast(ast)
+    {
+    }
     virtual ~IRTNode() = default;
 
+    const ASTNode* ast() const
+    {
+        return _ast;
+    }
+    ASTNode* ast()
+    {
+        return _ast;
+    }
     virtual IRExpression* toExpression() = 0;
     virtual IRStatement* toStatement() = 0;
+    virtual IRCompare* toCompare() = 0;
 };
 
 class IRExpression : public IRTNode
 {
 public:
-    IRExpression* toExpression() override
+    explicit IRExpression(ASTNode* ast)
+        : IRTNode(ast)
+    {
+    }
+
+    IRExpression* toExpression() final override
     {
         return this;
     }
-    IRStatement* toStatement() override;
+    IRStatement* toStatement() final override;
+
+    IRCompare* toCompare() final override;
 };
 
 class IRStatement : public IRTNode
 {
 public:
+    explicit IRStatement(ASTNode* ast)
+        : IRTNode(ast)
+    {
+    }
+
     IRStatement* toStatement() override
     {
         return this;
     }
     IRExpression* toExpression() override;
+
+    IRCompare* toCompare() override;
 };
 
 class Constant : public IRExpression
@@ -48,7 +79,8 @@ public:
     static Constant* newWordSize();
 
     explicit Constant(int value)
-        : _value(value)
+        : IRExpression(nullptr)
+        , _value(value)
     {
     }
 
@@ -63,8 +95,9 @@ class Name : public IRExpression
 protected:
     std::string _name;
 public:
-    explicit Name(std::string name)
-        : _name(std::move(name))
+    Name(ASTNode* ast, std::string name)
+        : IRExpression(ast)
+        , _name(std::move(name))
     {
     }
 
@@ -76,7 +109,11 @@ public:
 
 class IRMoveTarget : public IRExpression
 {
-
+public:
+    explicit IRMoveTarget(ASTNode* ast)
+        : IRExpression(ast)
+    {
+    }
 };
 
 class TemporaryVariable : public IRMoveTarget
@@ -85,9 +122,9 @@ protected:
     std::string _id;
     static int _internalCounter;
 public:
-    static TemporaryVariable* format(const std::string& desc, int line, int column)
+    static TemporaryVariable* format(const std::string& desc, int line, int column, int end)
     {
-        return new TemporaryVariable(desc + std::to_string(line) + "_" + std::to_string(column));
+        return new TemporaryVariable(desc + std::to_string(line) + "_" + std::to_string(column) + "_" + std::to_string(end));
     }
     static TemporaryVariable* newFP()
     {
@@ -98,7 +135,8 @@ public:
         return new TemporaryVariable("sp");
     }
     explicit TemporaryVariable(std::string id)
-        : _id(std::move(id))
+        : IRMoveTarget(nullptr)
+        , _id(std::move(id))
     {
     }
 
@@ -114,8 +152,9 @@ protected:
     std::unique_ptr<IRExpression> _offset;
 public:
 
-    explicit MemoryAccess(IRExpression* offset)
-        : _offset(offset)
+    explicit MemoryAccess(ASTNode* ast, IRExpression* offset)
+        : IRMoveTarget(ast)
+        , _offset(offset)
     {
     }
 
@@ -131,8 +170,10 @@ public:
     std::unique_ptr<IRExpression> _left;
     std::unique_ptr<IRExpression> _right;
 public:
-    BinaryOperation(IRExpression* left, IRExpression* right)
-        : _left(left), _right(right)
+    BinaryOperation(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : IRExpression(ast)
+        , _left(left)
+        , _right(right)
     {
     }
 
@@ -150,8 +191,8 @@ public:
 class Plus : public BinaryOperation
 {
 public:
-    Plus(IRExpression* left, IRExpression* right)
-        : BinaryOperation(left, right)
+    Plus(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : BinaryOperation(ast, left, right)
     {
     }
 };
@@ -159,8 +200,8 @@ public:
 class Minus : public BinaryOperation
 {
 public:
-    Minus(IRExpression* left, IRExpression* right)
-        : BinaryOperation(left, right)
+    Minus(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : BinaryOperation(ast, left, right)
     {
     }
 };
@@ -168,8 +209,8 @@ public:
 class Multiply : public BinaryOperation
 {
 public:
-    Multiply(IRExpression* left, IRExpression* right)
-        : BinaryOperation(left, right)
+    Multiply(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : BinaryOperation(ast, left, right)
     {
     }
 };
@@ -177,26 +218,26 @@ public:
 class Divide : public BinaryOperation
 {
 public:
-    Divide(IRExpression* left, IRExpression* right)
-        : BinaryOperation(left, right)
+    Divide(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : BinaryOperation(ast, left, right)
     {
     }
 };
 
-class And : public BinaryOperation
+class LogicalAnd : public BinaryOperation
 {
 public:
-    And(IRExpression* left, IRExpression* right)
-        : BinaryOperation(left, right)
+    LogicalAnd(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : BinaryOperation(ast, left, right)
     {
     }
 };
 
-class Or : public BinaryOperation
+class LogicalOr : public BinaryOperation
 {
 public:
-    Or(IRExpression* left, IRExpression* right)
-        : BinaryOperation(left, right)
+    LogicalOr(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : BinaryOperation(ast, left, right)
     {
     }
 };
@@ -204,8 +245,8 @@ public:
 class Xor : public BinaryOperation
 {
 public:
-    Xor(IRExpression* left, IRExpression* right)
-        : BinaryOperation(left, right)
+    Xor(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : BinaryOperation(ast, left, right)
     {
     }
 };
@@ -213,8 +254,8 @@ public:
 class LeftShift : public BinaryOperation
 {
 public:
-    LeftShift(IRExpression* left, IRExpression* right)
-        : BinaryOperation(left, right)
+    LeftShift(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : BinaryOperation(ast, left, right)
     {
     }
 };
@@ -222,8 +263,8 @@ public:
 class RightShift : public BinaryOperation
 {
 public:
-    RightShift(IRExpression* left, IRExpression* right)
-        : BinaryOperation(left, right)
+    RightShift(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : BinaryOperation(ast, left, right)
     {
     }
 };
@@ -234,15 +275,16 @@ protected:
     std::unique_ptr<IRExpression> _func;
     std::vector<std::unique_ptr<IRExpression>> _parameters;
 public:
-    FunctionCall(IRExpression* func, std::vector<IRExpression*>& exp)
-        : _func(func)
+    FunctionCall(ASTNode* ast, IRExpression* func, std::vector<IRExpression*>& exp)
+        : IRExpression(ast)
+        , _func(func)
         , _parameters(exp.begin(), exp.end())
     {
         exp.clear();
     }
 
-    FunctionCall(IRExpression* func, std::vector<IRExpression*>&& exp)
-        : FunctionCall(func, exp)
+    FunctionCall(ASTNode* ast, IRExpression* func, std::vector<IRExpression*>&& exp)
+        : FunctionCall(ast, func, exp)
     {
     }
 
@@ -263,8 +305,10 @@ protected:
     std::unique_ptr<IRStatement> _left;
     std::unique_ptr<IRExpression> _right;
 public:
-    EffectSequence(IRStatement* left, IRExpression* right)
-        : _left(left), _right(right)
+    EffectSequence(ASTNode* ast, IRStatement* left, IRExpression* right)
+        : IRExpression(ast)
+        , _left(left)
+        , _right(right)
     {
     }
 
@@ -277,6 +321,11 @@ public:
     {
         return _right;
     }
+
+    std::unique_ptr<IRExpression>& right()
+    {
+        return _right;
+    }
 };
 
 class Move : public IRStatement
@@ -285,8 +334,10 @@ protected:
     std::unique_ptr<IRMoveTarget> _target;
     std::unique_ptr<IRExpression> _exp;
 public:
-    Move(IRMoveTarget* target, IRExpression* exp)
-        : _target(target), _exp(exp)
+    Move(ASTNode* ast, IRMoveTarget* target, IRExpression* exp)
+        : IRStatement(ast)
+        , _target(target)
+        , _exp(exp)
     {
     }
 
@@ -306,8 +357,9 @@ class ExpressionStatement : public IRStatement
 protected:
     std::unique_ptr<IRExpression> _exp;
 public:
-    explicit ExpressionStatement(IRExpression* exp)
-        : _exp(exp)
+    explicit ExpressionStatement(ASTNode* ast, IRExpression* exp)
+        : IRStatement(ast)
+        , _exp(exp)
     {
     }
 
@@ -322,16 +374,17 @@ class Label : public IRStatement
 protected:
     std::string _name;
 public:
-    static Label* format(const std::string& desc, int line, int column)
+    static Label* format(const std::string& desc, int line, int column, int end)
     {
-        return new Label(name(desc, line, column));
+        return new Label(name(desc, line, column, end));
     }
-    static std::string name(const std::string& desc, int line, int column)
+    static std::string name(const std::string& desc, int line, int column, int end)
     {
-        return desc + std::to_string(line) + "_" + std::to_string(column);
+        return desc + std::to_string(line) + "_" + std::to_string(column) + "_" + std::to_string(end);
     }
     explicit Label(std::string name)
-        : _name(std::move(name))
+        : IRStatement(nullptr)
+        , _name(std::move(name))
     {
     }
 
@@ -347,7 +400,8 @@ protected:
     std::unique_ptr<Label> _target;
 public:
     explicit Jump(Label* target)
-        : _target(target)
+        : IRStatement(nullptr)
+        , _target(target)
     {
     }
 
@@ -357,7 +411,48 @@ public:
     }
 };
 
-class CompareJump : public IRStatement
+class SequenceExpression;
+class IRCompareJump;
+
+class IRCompare : public IRStatement
+{
+protected:
+    std::unique_ptr<IRStatement> _statement;
+    std::vector<std::string> _trueBranchLabels;
+    std::vector<std::string> _falseBranchLabels;
+public:
+    IRCompare(ASTNode* ast, IRCompareJump* ircjump);
+
+    std::unique_ptr<IRStatement>& statement()
+    {
+        return _statement;
+    }
+
+    std::vector<std::string>& trueBranchLabels()
+    {
+        return _trueBranchLabels;
+    }
+
+    std::vector<std::string>& falseBranchLabels()
+    {
+        return _falseBranchLabels;
+    }
+
+    void addTrueBranchLabel(std::string s)
+    {
+        _trueBranchLabels.push_back(std::move(s));
+    }
+    void addFalseBranchLabel(std::string s)
+    {
+        _falseBranchLabels.push_back(std::move(s));
+    }
+    static IRStatement* makeLabelTree(const std::vector<std::string>& labels, IRStatement* stm);
+    IRStatement* toStatement() override;
+    IRExpression* toExpression() override;
+    IRCompare* toCompare() override;
+};
+
+class IRCompareJump : public IRStatement
 {
 protected:
     std::unique_ptr<IRExpression> _left;
@@ -365,13 +460,7 @@ protected:
     std::string _trueBranch;
     std::string _falseBranch;
 public:
-    template<class T>
-    static std::unique_ptr<CompareJump> makeCJump(IRExpression* left, IRExpression* right, int li, int co);
-    CompareJump(IRExpression* left, IRExpression* right,
-        std::string trueBranch, std::string falseBranch)
-        : _left(left), _right(right), _trueBranch(std::move(trueBranch)), _falseBranch(std::move(falseBranch))
-    {
-    }
+    IRCompareJump(ASTNode* ast, IRExpression* left, IRExpression* right);
 
     const std::unique_ptr<IRExpression>& left() const
     {
@@ -394,56 +483,56 @@ public:
     }
 };
 
-class EqCompare : public CompareJump
+class EqCompare : public IRCompareJump
 {
 public:
-    EqCompare(IRExpression* left, IRExpression* right, std::string trueBranch, std::string falseBranch)
-        : CompareJump(left, right, std::move(trueBranch), std::move(falseBranch))
+    EqCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : IRCompareJump(ast, left, right)
     {
     }
 };
 
-class NeCompare : public CompareJump
+class NeCompare : public IRCompareJump
 {
 public:
-    NeCompare(IRExpression* left, IRExpression* right, std::string trueBranch, std::string falseBranch)
-        : CompareJump(left, right, std::move(trueBranch), std::move(falseBranch))
+    NeCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : IRCompareJump(ast, left, right)
     {
     }
 };
 
-class GtCompare : public CompareJump
+class GtCompare : public IRCompareJump
 {
 public:
-    GtCompare(IRExpression* left, IRExpression* right, std::string trueBranch, std::string falseBranch)
-        : CompareJump(left, right, std::move(trueBranch), std::move(falseBranch))
+    GtCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : IRCompareJump(ast, left, right)
     {
     }
 };
 
-class GeCompare : public CompareJump
+class GeCompare : public IRCompareJump
 {
 public:
-    GeCompare(IRExpression* left, IRExpression* right, std::string trueBranch, std::string falseBranch)
-        : CompareJump(left, right, std::move(trueBranch), std::move(falseBranch))
+    GeCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : IRCompareJump(ast, left, right)
     {
     }
 };
 
-class LtCompare : public CompareJump
+class LtCompare : public IRCompareJump
 {
 public:
-    LtCompare(IRExpression* left, IRExpression* right, std::string trueBranch, std::string falseBranch)
-        : CompareJump(left, right, std::move(trueBranch), std::move(falseBranch))
+    LtCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : IRCompareJump(ast, left, right)
     {
     }
 };
 
-class LeCompare : public CompareJump
+class LeCompare : public IRCompareJump
 {
 public:
-    LeCompare(IRExpression* left, IRExpression* right, std::string trueBranch, std::string falseBranch)
-        : CompareJump(left, right, std::move(trueBranch), std::move(falseBranch))
+    LeCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
+        : IRCompareJump(ast, left, right)
     {
     }
 };
@@ -454,8 +543,11 @@ protected:
     std::unique_ptr<IRStatement> _left;
     std::unique_ptr<IRStatement> _right;
 public:
-    SequenceExpression(IRStatement* left, IRStatement* right)
-        : _left(left), _right(right)
+    static IRStatement* makeExpressionTree(const std::vector<IRStatement*> stmts);
+    SequenceExpression(ASTNode* ast, IRStatement* left, IRStatement* right)
+        : IRStatement(ast)
+        , _left(left)
+        , _right(right)
     {
     }
 
@@ -468,36 +560,12 @@ public:
     {
         return _right;
     }
+
+    std::unique_ptr<IRStatement>& right()
+    {
+        return _right;
+    }
 };
-
-class Nop : public IRStatement
-{
-};
-
-
-template <class T>
-std::unique_ptr<CompareJump> CompareJump::makeCJump(IRExpression* left, IRExpression* right, int li, int co)
-{
-    auto falseBranch = new SequenceExpression(
-        Label::format("iffalse", li, co),
-        new Move(TemporaryVariable::format("ifresult", li, co), new Constant(1)));
-    auto gotoEnd = new SequenceExpression(
-        new Jump(Label::format("ifend", li, co)),
-        falseBranch);
-    auto trueBranch = new SequenceExpression(
-        Label::format("iftrue", li, co),
-        new SequenceExpression(
-            new Move(TemporaryVariable::format("ifresult", li, co), new Constant(0)),
-            gotoEnd));
-    auto ifEnd = new EffectSequence(Label::format("ifend", li, co),
-        TemporaryVariable::format("ifresult", li, co));
-    auto ifJump = new T(left, right,
-        Label::name("iftrue", li, co),
-        Label::name("iffalse", li, co));
-    return std::make_unique<EffectSequence>(
-        new SequenceExpression(ifJump, trueBranch),
-        ifEnd);
-}
 
 }
 }

@@ -1,5 +1,5 @@
 #include "TigerAST.hpp"
-
+#include "SymbolTable.hpp"
 namespace tiger
 {
 void ASTNode::loc(location const& loc)
@@ -74,6 +74,11 @@ void IdentifierTypeDeclaration::escape(bool value)
     _escape = value;
 }
 
+void IdentifierTypeDeclaration::type(Type* value)
+{
+    _type = value;
+}
+
 VariableDeclaration::VariableDeclaration(std::string id, std::string typeID, Expression* exp)
     : IdentifierTypeDeclaration(std::move(id), std::move(typeID))
     , _initializer(exp)
@@ -104,6 +109,12 @@ const std::unique_ptr<Type>& TypeDeclaration::type() const
 FunctionParameter::FunctionParameter(std::string id, std::string typeID)
     : IdentifierTypeDeclaration(std::move(id), std::move(typeID))
 {
+}
+
+void FunctionParameter::semanticCheckImpl(SymbolTable& table)
+{
+    _type = table.checkType(_typeID);
+    assert(_type);
 }
 
 FunctionDeclaration::FunctionDeclaration(std::string identifier, std::vector<FunctionParameter>& params, std::string returnType, Expression* body)

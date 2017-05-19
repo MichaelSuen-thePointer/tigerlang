@@ -4,11 +4,9 @@
 #include <vector>
 #include <cassert>
 #include "location.hh"
-#include "SymbolTable.hpp"
-#include "TigerFrame.hpp"
-
 namespace tiger
 {
+class Frame;
 class SymbolTable;
 class Type;
 namespace ir
@@ -68,6 +66,8 @@ class Declaration : public ASTNode
 {
 public:
     virtual void semanticCheckInside(SymbolTable& table) = 0;
+
+    virtual void addToFrame(Frame& f);
 };
 
 class IdentifierTypeDeclaration : public Declaration
@@ -75,6 +75,8 @@ class IdentifierTypeDeclaration : public Declaration
 protected:
     std::string _identifier;
     std::string _typeID;
+    Type* _type = nullptr;
+protected:
     bool _escape = false;
 public:
     IdentifierTypeDeclaration(std::string id, std::string typeID);
@@ -86,6 +88,9 @@ public:
     bool escape() const;
 
     void escape(bool value);
+
+    Type* type() const;
+    void type(Type* value);
 };
 
 class VariableDeclaration : public IdentifierTypeDeclaration
@@ -101,6 +106,8 @@ protected:
     void semanticCheckImpl(SymbolTable& table) override;
 
     void semanticCheckInside(SymbolTable& table) override;
+public:
+    void addToFrame(Frame& f) override;
 };
 
 class Type;
@@ -122,6 +129,8 @@ protected:
     void semanticCheckImpl(SymbolTable& table) override;
 
     void semanticCheckInside(SymbolTable& table) override;
+public:
+    void addToFrame(Frame& f) override;
 };
 
 class FunctionParameter : public IdentifierTypeDeclaration
@@ -129,7 +138,11 @@ class FunctionParameter : public IdentifierTypeDeclaration
 public:
     FunctionParameter(std::string id, std::string typeID);
 
+    void semanticCheckImpl(SymbolTable& table) override;
+
     void semanticCheckInside(SymbolTable& table) override;
+
+    void addToFrame(Frame& f) override;
 };
 
 class FunctionDeclaration : public Declaration
@@ -154,6 +167,8 @@ protected:
     void semanticCheckImpl(SymbolTable& table) override;
 
     void semanticCheckInside(SymbolTable& table) override;
+public:
+    void addToFrame(Frame& f) override;
 };
 
 class Type : public ASTNode
@@ -368,7 +383,7 @@ class Call : public Expression
 protected:
     std::string _identifier;
     std::vector<std::unique_ptr<Expression>> _arguments;
-
+    FunctionDeclaration* _func = nullptr;
 public:
     Call(std::string id, std::vector<Expression *> args);
 

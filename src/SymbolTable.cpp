@@ -97,17 +97,15 @@ void SymbolTable::initializeIntrinsic()
 
 Type* SymbolTable::getArrayType(std::string& typeId)
 {
-    auto r = _tempBuffer.find(typeId);
-    assert(typeId == "int" || typeId == "string");
-    if (r == _tempBuffer.end())
+    auto r = _tempTypeBuffer.find(typeId);
+    if (r == _tempTypeBuffer.end())
     {
         auto p = new ArrayType(typeId);
-        _tempBuffer.emplace(typeId, std::unique_ptr<Type>(p));
+        _tempTypeBuffer.emplace(typeId, std::unique_ptr<Type>(p));
         return p;
     }
     auto p = r->second.get();
-    assert(dynamic_cast<Type*>(p) != nullptr);
-    return static_cast<Type*>(p);
+    return p;
 }
 
 Type* SymbolTable::getNil()
@@ -164,8 +162,8 @@ bool SymbolTable::addLoopVariable(std::string const& name)
     assert(vars().find(name) == vars().end());
     assert(name != "int" && name != "string");
     auto p = new VariableDeclaration(name, "int", nullptr);
-
-    _tempBuffer.emplace(name, std::unique_ptr<IdentifierTypeDeclaration>(p));
+    p->type(checkType("int"));
+    _tempVarBuffer.emplace(name, std::unique_ptr<IdentifierTypeDeclaration>(p));
 
     vars().emplace(name, p);
 
@@ -252,6 +250,7 @@ ScopeGuard::~ScopeGuard()
     ref.exitScope();
 }
 
-std::map<std::string, std::unique_ptr<ASTNode>> SymbolTable::_tempBuffer;
+std::map<std::string, std::unique_ptr<Type>> SymbolTable::_tempTypeBuffer;
+std::map<std::string, std::unique_ptr<IdentifierTypeDeclaration>> SymbolTable::_tempVarBuffer;
 
 }
