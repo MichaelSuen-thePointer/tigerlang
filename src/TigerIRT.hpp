@@ -276,20 +276,25 @@ class IRCompare : public IRStatement
 {
 protected:
     std::unique_ptr<IRStatement> _statement;
-    std::vector<std::string> _trueBranchLabels;
-    std::vector<std::string> _falseBranchLabels;
+    std::vector<IRCompareJump*> _trueBranches;
+    std::vector<IRCompareJump*> _falseBranches;
 public:
     IRCompare(ASTNode* ast, IRCompareJump* ircjump);
 
     std::unique_ptr<IRStatement>& statement();
 
-    std::vector<std::string>& trueBranchLabels();
+    const std::vector<IRCompareJump*>& trueBranches() const;
 
-    std::vector<std::string>& falseBranchLabels();
+    const std::vector<IRCompareJump*>& falseBranches() const;
 
-    void addTrueBranchLabel(std::string s);
+    void mergeTrueBranches(const std::vector<IRCompareJump*>& r);
 
-    void addFalseBranchLabel(std::string s);
+    void mergeFalseBranches(const std::vector<IRCompareJump*>& r);
+
+    void refillTrueBranchLabel(const std::string& s);
+
+    void refillFalseBranchLabel(const std::string& s);
+
     static IRStatement* makeLabelTree(const std::vector<std::string>& labels, IRStatement* stm);
     IRStatement* toStatement() override;
     IRExpression* toExpression() override;
@@ -314,6 +319,11 @@ public:
     const std::string& trueBranch() const;
 
     const std::string& falseBranch() const;
+
+    void trueBranch(std::string trueBranch);
+
+    void falseBranch(std::string falseBranch);
+
     void dump(std::ostream& out) override;
 };
 

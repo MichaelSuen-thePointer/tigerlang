@@ -278,24 +278,14 @@ std::unique_ptr<IRStatement>& IRCompare::statement()
     return _statement;
 }
 
-std::vector<std::string>& IRCompare::trueBranchLabels()
+const std::vector<IRCompareJump*>& IRCompare::trueBranches() const
 {
-    return _trueBranchLabels;
+    return _trueBranches;
 }
 
-std::vector<std::string>& IRCompare::falseBranchLabels()
+const std::vector<IRCompareJump*>& IRCompare::falseBranches() const
 {
-    return _falseBranchLabels;
-}
-
-void IRCompare::addTrueBranchLabel(std::string s)
-{
-    _trueBranchLabels.push_back(std::move(s));
-}
-
-void IRCompare::addFalseBranchLabel(std::string s)
-{
-    _falseBranchLabels.push_back(std::move(s));
+    return _falseBranches;
 }
 
 const std::unique_ptr<IRExpression>& IRCompareJump::left() const
@@ -316,6 +306,16 @@ const std::string& IRCompareJump::trueBranch() const
 const std::string& IRCompareJump::falseBranch() const
 {
     return _falseBranch;
+}
+
+void IRCompareJump::trueBranch(std::string trueBranch)
+{
+    _trueBranch = std::move(trueBranch);
+}
+
+void IRCompareJump::falseBranch(std::string falseBranch)
+{
+    _falseBranch = std::move(falseBranch);
 }
 
 EqCompare::EqCompare(ASTNode* ast, IRExpression* left, IRExpression* right)
@@ -377,13 +377,8 @@ IRStatement* IRExpression::toStatement()
 
 IRCompare* IRExpression::toCompare()
 {
-    auto cmp = new NeCompare(ast(), this, new Constant(0));
-    auto r = new IRCompare(ast(), cmp);
-    r->addTrueBranchLabel(cmp->trueBranch());
-    r->addFalseBranchLabel(cmp->falseBranch());
-    return r;
+    return new IRCompare(ast(), new NeCompare(ast(), this, new Constant(0)));
 }
-
 IRExpression* IRStatement::toExpression()
 {
     return new EffectSequence(ast(), this, new Constant(0));
@@ -408,8 +403,8 @@ Constant* Constant::newWordSize()
 IRCompare::IRCompare(ASTNode* ast, IRCompareJump* ircjump)
     : IRStatement(ast)
     , _statement(ircjump)
-    , _trueBranchLabels(1, ircjump->trueBranch())
-    , _falseBranchLabels(1, ircjump->falseBranch())
+    , _trueBranches{ ircjump }
+    , _falseBranches{ ircjump }
 {
 }
 
@@ -429,18 +424,15 @@ IRStatement* IRCompare::makeLabelTree(const std::vector<std::string>& labels, IR
 
 IRStatement* IRCompare::toStatement()
 {
-    auto allLabels = _trueBranchLabels;
-    allLabels.insert(allLabels.begin(), _falseBranchLabels.begin(), _falseBranchLabels.end());
+    auto li = _statement->ast()->loc().begin.line;
+    auto co = _statement->ast()->loc().begin.column;
+    auto ed = _statement->ast()->loc().end.column;
 
-    assert(allLabels.size() >= 2);
-
-    auto label = new SequenceExpression(nullptr, new Label(allLabels[allLabels.size() - 2]), new Label(allLabels.back()));
-    for (auto iter = allLabels.rbegin() + 2; iter != allLabels.rend(); ++iter)
-    {
-        label = new SequenceExpression(nullptr, new Label(*iter), label);
-    }
+    auto ignoreLabel = Label::name("ignoreJump", li, co, ed);
+    refillTrueBranchLabel(ignoreLabel);
+    refillFalseBranchLabel(ignoreLabel);
     auto stm = _statement.release();
-    auto r = new SequenceExpression(stm->ast(), stm, label);
+    auto r = new SequenceExpression(stm->ast(), stm, new Label(ignoreLabel));
     delete this;
     return r;
 }
@@ -451,22 +443,29 @@ IRExpression* IRCompare::toExpression()
     auto co = _statement->ast()->loc().begin.column;
     auto ed = _statement->ast()->loc().end.column;
     auto assignOne = new Move(nullptr, TemporaryVariable::format("branchResult", li, co, ed), new Constant(1));
-    auto trueBranch = makeLabelTree(_trueBranchLabels, assignOne);
+    auto trueLabel = Label::name("trueLabel", li, co, ed);
     auto assignZero = new Move(nullptr, TemporaryVariable::format("branchResult", li, co, ed), new Constant(0));
-    auto falseBranch = new SequenceExpression(nullptr,
-        new Jump(Label::format("branchEnd", li, co, ed)),
-        makeLabelTree(_falseBranchLabels, assignZero));
-    auto branchEnd = new EffectSequence(nullptr, Label::format("branchEnd", li, co, ed), TemporaryVariable::format("branchResult", li, co, ed));
+    auto falseLabel = Label::name("falseLabel", li, co, ed);
+    auto endLabel = Label::name("branchEnd", li, co, ed);
+    auto branchEnd = TemporaryVariable::format("branchResult", li, co, ed);
     auto stm = _statement.release();
+    refillTrueBranchLabel(trueLabel);
+    refillFalseBranchLabel(falseLabel);
     auto branchIR = new EffectSequence(stm->ast(),
         new SequenceExpression(nullptr,
             new SequenceExpression(nullptr,
-                stm,
-                trueBranch),
-            falseBranch
-        ),
-        branchEnd
-    );
+                new SequenceExpression(nullptr,
+                    new SequenceExpression(nullptr,
+                        new SequenceExpression(nullptr,
+                            new SequenceExpression(nullptr,
+                                stm,
+                                new Label(trueLabel)),
+                            assignOne),
+                        new Jump(new Label(endLabel))),
+                    new Label(falseLabel)),
+                assignZero),
+            new Label(endLabel)),
+        branchEnd);
     delete this;
     return branchIR;
 }
@@ -480,8 +479,6 @@ IRCompareJump::IRCompareJump(ASTNode* ast, IRExpression* left, IRExpression* rig
     : IRStatement(ast)
     , _left(left)
     , _right(right)
-    , _trueBranch(Label::name("trueBranch", ast->loc().begin.line, ast->loc().begin.column, ast->loc().end.column))
-    , _falseBranch(Label::name("falseBranch", ast->loc().begin.line, ast->loc().begin.column, ast->loc().end.column))
 {
 }
 
@@ -501,6 +498,32 @@ IRStatement* SequenceExpression::makeExpressionTree(const std::vector<IRStatemen
         r = new SequenceExpression((*(stmts.end() - iter + stmts.begin()))->ast(), r, *iter);
     }
     return r;
+}
+
+void IRCompare::refillTrueBranchLabel(const std::string& s)
+{
+    for (auto e : _trueBranches)
+    {
+        e->trueBranch(s);
+    }
+}
+
+void IRCompare::refillFalseBranchLabel(const std::string& s)
+{
+    for (auto e : _trueBranches)
+    {
+        e->falseBranch(s);
+    }
+}
+
+void IRCompare::mergeTrueBranches(const std::vector<IRCompareJump*>& r)
+{
+    _trueBranches.insert(_trueBranches.end(), r.begin(), r.end());
+}
+
+void IRCompare::mergeFalseBranches(const std::vector<IRCompareJump*>& r)
+{
+    _falseBranches.insert(_falseBranches.end(), r.begin(), r.end());
 }
 }
 }

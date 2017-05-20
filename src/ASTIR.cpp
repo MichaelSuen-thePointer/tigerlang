@@ -220,22 +220,25 @@ std::unique_ptr<ir::IRTNode> Le::toIR(Frame& f)
 
 std::unique_ptr<ir::IRTNode> And::toIR(Frame& f)
 {
+    auto li = loc().begin.line;
+    auto co = loc().begin.column;
+    auto ed = loc().end.column;
+
     auto left = _left->toIR(f).release();
     auto right = _right->toIR(f).release();
 
     auto leftCx = left->toCompare();
     auto rightCx = right->toCompare();
 
+    auto shortCircuitLabel = Label::name("andShortCircuit", li, co, ed);
+    leftCx->refillTrueBranchLabel(shortCircuitLabel);
+
     auto leftStm = leftCx->statement().release();
     auto rightStm = rightCx->statement().release();
 
-    auto shortCircuit = IRCompare::makeLabelTree(leftCx->trueBranchLabels(), rightStm);
-    auto newStm = new SequenceExpression(this, leftStm, shortCircuit);
+    auto newStm = new SequenceExpression(this, leftStm, new SequenceExpression(nullptr, new Label(shortCircuitLabel), rightStm));
 
-    rightCx->falseBranchLabels().insert(
-        rightCx->falseBranchLabels().end(),
-        leftCx->falseBranchLabels().begin(),
-        leftCx->falseBranchLabels().end());
+    rightCx->mergeFalseBranches(leftCx->trueBranches());
     rightCx->statement().reset(newStm);
     delete leftCx;
     return std::unique_ptr<IRTNode>(rightCx);
@@ -243,22 +246,24 @@ std::unique_ptr<ir::IRTNode> And::toIR(Frame& f)
 
 std::unique_ptr<ir::IRTNode> Or::toIR(Frame& f)
 {
+    auto li = loc().begin.line;
+    auto co = loc().begin.column;
+    auto ed = loc().end.column;
+
     auto left = _left->toIR(f).release();
     auto right = _right->toIR(f).release();
 
     auto leftCx = left->toCompare();
     auto rightCx = right->toCompare();
 
+    auto shortCircuitLabel = Label::name("orShortCircuit", li, co, ed);
+    leftCx->refillFalseBranchLabel(shortCircuitLabel);
+
     auto leftStm = leftCx->statement().release();
     auto rightStm = rightCx->statement().release();
+    auto newStm = new SequenceExpression(this, leftStm, new SequenceExpression(nullptr, new Label(shortCircuitLabel), rightStm));
 
-    auto shortCircuit = IRCompare::makeLabelTree(leftCx->falseBranchLabels(), rightStm);
-    auto newStm = new SequenceExpression(this, leftStm, shortCircuit);
-
-    rightCx->trueBranchLabels().insert(
-        rightCx->trueBranchLabels().end(),
-        leftCx->trueBranchLabels().begin(),
-        leftCx->trueBranchLabels().end());
+    rightCx->mergeTrueBranches(leftCx->trueBranches());
     rightCx->statement().reset(newStm);
     delete leftCx;
     return std::unique_ptr<IRTNode>(rightCx);
@@ -354,13 +359,19 @@ std::unique_ptr<ir::IRTNode> IfThen::toIR(Frame& f)
     auto cond = _condition->toIR(f).release()->toCompare();
     auto body = _thenBranch->toIR(f).release()->toStatement();
 
-    auto trueBranch = IRCompare::makeLabelTree(cond->trueBranchLabels(), body);
-    auto endLabel = Label::format("ifEnd", li, co, ed);
-    auto falseBranch = IRCompare::makeLabelTree(cond->falseBranchLabels(), endLabel);
+    auto trueLabel = Label::name("ifTrue", li, co, ed);
+    auto endLabel = Label::name("ifEnd", li, co, ed);
+    cond->refillTrueBranchLabel(trueLabel);
+    cond->refillFalseBranchLabel(endLabel);
     auto condStm = cond->statement().release();
     delete cond;
-    return make_unique<SequenceExpression>(this, condStm, new SequenceExpression(nullptr,
-        trueBranch, falseBranch));
+    return make_unique<SequenceExpression>(this,
+        new SequenceExpression(nullptr,
+            condStm,
+            new SequenceExpression(nullptr,
+                new Label(trueLabel),
+                body)),
+        new Label(endLabel));
 }
 
 std::unique_ptr<ir::IRTNode> IfThenElse::toIR(Frame& f)
@@ -378,8 +389,15 @@ std::unique_ptr<ir::IRTNode> IfThenElse::toIR(Frame& f)
         auto thenResult = new Move(nullptr, TemporaryVariable::format("ifResult", li, co, ed), thenBranch);
         auto elseResult = new Move(nullptr, TemporaryVariable::format("ifResult", li, co, ed), elseBranch);
 
-        auto trueBranch = IRCompare::makeLabelTree(cond->trueBranchLabels(), thenResult);
-        auto falseBranch = IRCompare::makeLabelTree(cond->falseBranchLabels(), elseResult);
+        auto trueLabel = Label::name("ifTrue", li, co, ed);
+        auto falseLabel = Label::name("ifFalse", li, co, ed);
+        auto endLabel = Label::name("ifEnd", li, co, ed);
+
+        cond->refillTrueBranchLabel(trueLabel);
+        cond->refillFalseBranchLabel(falseLabel);
+
+        auto trueBranch = new SequenceExpression(nullptr, new Label(trueLabel), thenResult);
+        auto falseBranch = new SequenceExpression(nullptr, new Label(falseLabel), elseResult);
 
         auto condStm = cond->statement().release();
         delete cond;
@@ -390,9 +408,9 @@ std::unique_ptr<ir::IRTNode> IfThenElse::toIR(Frame& f)
                     new SequenceExpression(nullptr,
                         new SequenceExpression(nullptr,
                             trueBranch,
-                            new Jump(Label::format("ifEnd", li, co, ed))),
+                            new Jump(new Label(endLabel))),
                         falseBranch)),
-                Label::format("ifEnd", li, co, ed)),
+                new Label(endLabel)),
             TemporaryVariable::format("ifResult", li, co, ed));
     }
     else
@@ -400,21 +418,28 @@ std::unique_ptr<ir::IRTNode> IfThenElse::toIR(Frame& f)
         auto thenBranch = _thenBranch->toIR(f).release()->toStatement();
         auto elseBranch = _elseBranch->toIR(f).release()->toStatement();
 
-        auto trueBranch = IRCompare::makeLabelTree(cond->trueBranchLabels(), thenBranch);
-        auto falseBranch = IRCompare::makeLabelTree(cond->falseBranchLabels(), elseBranch);
-        
+        auto trueLabel = Label::name("ifTrue", li, co, ed);
+        auto falseLabel = Label::name("ifFalse", li, co, ed);
+        auto endLabel = Label::name("ifEnd", li, co, ed);
+
+        cond->refillTrueBranchLabel(trueLabel);
+        cond->refillFalseBranchLabel(falseLabel);
+
+        auto trueBranch = new SequenceExpression(nullptr, new Label(trueLabel), thenBranch);
+        auto falseBranch = new SequenceExpression(nullptr, new Label(falseLabel), elseBranch);
+
         auto condStm = cond->statement().release();
         delete cond;
-        
+
         return make_unique<SequenceExpression>(nullptr,
             new SequenceExpression(nullptr,
                 condStm,
                 new SequenceExpression(nullptr,
                     new SequenceExpression(nullptr,
                         trueBranch,
-                        new Jump(Label::format("ifEnd", li, co, ed))),
+                        new Jump(new Label(endLabel))),
                     falseBranch)),
-            Label::format("ifEnd", li, co, ed));
+            new Label(endLabel));
     }
 }
 
@@ -431,17 +456,18 @@ std::unique_ptr<ir::IRTNode> While::toIR(Frame& f)
 
     auto cond = _condition->toIR(f).release()->toCompare();
     auto body = _body->toIR(f).release()->toStatement();
-    auto endLabels = IRCompare::makeLabelTree(cond->falseBranchLabels(), new Label(endLabel));
-    auto continueLabels = IRCompare::makeLabelTree(cond->trueBranchLabels(), new SequenceExpression(nullptr,
+    cond->refillTrueBranchLabel(startLabel);
+    cond->refillFalseBranchLabel(endLabel);
+    auto continueLabels = new SequenceExpression(nullptr,
         body,
         new SequenceExpression(nullptr,
             new Jump(new Label(startLabel)),
-            endLabels)));
-    auto condExp = cond->statement().release();
+            new Label(endLabel)));
+    auto condStm = cond->statement().release();
     return make_unique<SequenceExpression>(this,
         new Label(startLabel),
         new SequenceExpression(nullptr,
-            condExp,
+            condStm,
             continueLabels));
 }
 
@@ -456,27 +482,27 @@ std::unique_ptr<ir::IRTNode> For::toIR(Frame& f)
     FrameScopeGuard fsg(f);
     f.currentFrame()->addVariable(_identifier);
     auto startLabel = Label::name("forStart", li, co, ed);
+    auto endLabel = Label::name("forEnd", li, co, ed);
     auto initial = new Move(nullptr, traceStaticLink(f, _identifier).release(), lowerBound);
     auto compare = new IRCompare(nullptr, new LeCompare(_upperBound.get(), traceStaticLink(f, _identifier).release(), upperBound));
-    assert(compare->falseBranchLabels().size() == 1);
-
-    f.setLoopBreakLabel(compare->falseBranchLabels().back());
+    compare->refillFalseBranchLabel(endLabel);
+    compare->refillTrueBranchLabel(startLabel);
+    f.setLoopBreakLabel(endLabel);
 
     auto body = _body->toIR(f).release()->toStatement();
-    auto rejump = new SequenceExpression(nullptr, new Jump(new Label(startLabel)), new Label(compare->falseBranchLabels().back()));
+    auto rejump = new SequenceExpression(nullptr, new Jump(new Label(startLabel)), new Label(endLabel));
 
     auto bodyPart = new SequenceExpression(nullptr, body, rejump);
 
-    auto trueBranch = IRCompare::makeLabelTree(compare->trueBranchLabels(), bodyPart);
     auto condStm = compare->statement().release();
     delete compare;
     auto forIR = new SequenceExpression(nullptr,
-        new Label(startLabel),
+        initial,
         new SequenceExpression(nullptr,
-            initial,
+            new Label(startLabel),
             new SequenceExpression(nullptr,
                 condStm,
-                trueBranch)));
+                bodyPart)));
 
     return make_unique<EffectSequence>(this,
         new SequenceExpression(nullptr,
@@ -500,7 +526,7 @@ std::unique_ptr<ir::IRTNode> Let::toIR(Frame& f)
     auto deltaSP = offset - f.currentFrame()->currentOffset();
     std::vector<IRStatement*> nodes;
     nodes.push_back(new ExpressionStatement(nullptr, new Minus(nullptr, TemporaryVariable::newSP(), new Constant(deltaSP))));
-    int variableCount = 0;
+
     for (auto& decl : _bindings)
     {
         if (auto varDecl = dynamic_cast<VariableDeclaration*>(decl.get()))

@@ -27,6 +27,7 @@ int main()
     catch (std::runtime_error& e)
     {
         std::cout << e.what() << "\n";
+        return -1;
     }
     tiger::Frame f;
     auto ir = prog->expression()->toIR(f);
