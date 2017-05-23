@@ -165,9 +165,10 @@ protected:
     std::vector<FunctionParameter> _parameters;
     std::string _returnType;
     std::unique_ptr<Expression> _body;
+    bool isBuiltin = false;
 public:
     FunctionDeclaration(std::string identifier, std::vector<FunctionParameter>& params,
-        std::string returnType, Expression* body);
+        std::string returnType, Expression* body, bool isBuiltin = false);
     virtual std::string graphviz();
 
     const std::string& identifier() const;
