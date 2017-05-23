@@ -111,9 +111,12 @@ std::unique_ptr<IRTNode> Call::toIR(Frame& f)
     {
         return e->toIR(f).release()->toExpression();
     });
-
-    auto mangledFuncName = Label::name(_identifier, _func->loc().begin.line, _func->loc().begin.column, _func->loc().end.column);
-    return make_unique<FunctionCall>(this, new Name(this, mangledFuncName), args);
+    if (!_func->isBuiltin())
+    {
+        auto mangledFuncName = Label::name(_identifier, _func->loc().begin.line, _func->loc().begin.column, _func->loc().end.column);
+        return make_unique<FunctionCall>(this, new Name(this, mangledFuncName), args);
+    }
+    return make_unique<FunctionCall>(this, new Name(this, _func->identifier()), args);
 }
 
 std::unique_ptr<ir::IRTNode> Add::toIR(Frame& f)

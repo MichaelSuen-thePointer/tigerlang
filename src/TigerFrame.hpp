@@ -51,7 +51,7 @@ protected:
 
 public:
     constexpr static int WordSize = 4;
-    constexpr static int StaticLinkOffset = 8;
+    constexpr static int StaticLinkOffset = 0;
     explicit TigerFrame(TigerFrame* staticLink);
 
     TigerFrame* staticLink() const;
