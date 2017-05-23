@@ -20,7 +20,7 @@ int main()
     {
         std::cout << "Parse succeed\n";
         prog->graphviz();
-        std::cout << prog->graphvizCode;
+        //std::cout << prog->graphvizCode;
     }
     try
     {
@@ -36,6 +36,7 @@ int main()
     auto ir = prog->expression()->toIR(f);
     std::ofstream outFile("IROut.json");
     ir->dump(outFile);
+    ir->graphviz(std::cout);
 
     for (auto& func : f.functionFragments())
     {

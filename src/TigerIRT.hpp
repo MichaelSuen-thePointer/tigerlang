@@ -29,6 +29,8 @@ public:
     virtual IRCompare* toCompare() = 0;
 
     virtual void dump(std::ostream& out) = 0;
+    virtual std::string _graphviz(int& id, std::ostream& out) = 0;
+    void graphviz(std::ostream& out);
 };
 
 class IRExpression : public IRTNode
@@ -62,6 +64,7 @@ public:
 
     explicit Constant(int value);
 
+    virtual std::string _graphviz(int& id, std::ostream& out);
     int value() const;
     void dump(std::ostream& out) override;
 };
@@ -73,6 +76,7 @@ protected:
 public:
     Name(ASTNode* ast, std::string name);
 
+    virtual std::string _graphviz(int& id, std::ostream& out);
     const std::string& name() const;
 
     void dump(std::ostream& out) override;
@@ -99,6 +103,8 @@ public:
 
     const std::string& id() const;
     void dump(std::ostream& out) override;
+    virtual std::string _graphviz(int &id, std::ostream &out);
+
 };
 
 class MemoryAccess : public IRMoveTarget
@@ -106,12 +112,14 @@ class MemoryAccess : public IRMoveTarget
 protected:
     std::unique_ptr<IRExpression> _offset;
 public:
+    std::string _graphviz(int &id, std::ostream &out);
 
     explicit MemoryAccess(ASTNode* ast, IRExpression* offset);
 
     const std::unique_ptr<IRExpression>& offset() const;
 
     void dump(std::ostream& out) override;
+
 };
 
 class BinaryOperation : public IRExpression
@@ -119,6 +127,7 @@ class BinaryOperation : public IRExpression
 public:
     std::unique_ptr<IRExpression> _left;
     std::unique_ptr<IRExpression> _right;
+    std::string _graphviz(int &id, std::ostream &out);
 public:
     BinaryOperation(ASTNode* ast, IRExpression* left, IRExpression* right);
 
@@ -127,6 +136,7 @@ public:
     const std::unique_ptr<IRExpression>& right() const;
 
     void dump(std::ostream& out) override;
+
 };
 
 class Plus : public BinaryOperation
@@ -197,6 +207,8 @@ public:
 
     const std::vector<std::unique_ptr<IRExpression>>& parameters() const;
     void dump(std::ostream& out) override;
+
+    std::string _graphviz(int &id, std::ostream &out);
 };
 
 class EffectSequence : public IRExpression
@@ -214,6 +226,8 @@ public:
     std::unique_ptr<IRExpression>& right();
 
     void dump(std::ostream& out) override;
+
+    std::string _graphviz(int &id, std::ostream &out);
 };
 
 class Move : public IRStatement
@@ -229,6 +243,8 @@ public:
     const std::unique_ptr<IRExpression>& exp() const;
 
     void dump(std::ostream& out) override;
+
+    std::string _graphviz(int &id, std::ostream &out);
 };
 
 class ExpressionStatement : public IRStatement
@@ -241,6 +257,8 @@ public:
     const std::unique_ptr<IRExpression>& exp() const;
 
     void dump(std::ostream& out) override;
+
+    std::string _graphviz(int &id, std::ostream &out);
 };
 
 class Label : public IRStatement
@@ -256,6 +274,8 @@ public:
 
     const std::string& name() const;
     void dump(std::ostream& out) override;
+
+    std::string _graphviz(int &id, std::ostream &out);
 };
 
 class Jump : public IRStatement
@@ -267,6 +287,8 @@ public:
 
     const std::unique_ptr<Label>& target() const;
     void dump(std::ostream& out) override;
+
+    std::string _graphviz(int &id, std::ostream &out);
 };
 
 class SequenceExpression;
@@ -300,6 +322,8 @@ public:
     IRExpression* toExpression() override;
     IRCompare* toCompare() override;
     void dump(std::ostream& out) override;
+
+    std::string _graphviz(int &id, std::ostream &out);
 };
 
 class IRCompareJump : public IRStatement
@@ -325,6 +349,8 @@ public:
     void falseBranch(std::string falseBranch);
 
     void dump(std::ostream& out) override;
+
+    std::string _graphviz(int &id, std::ostream &out);
 };
 
 class EqCompare : public IRCompareJump
@@ -379,6 +405,8 @@ public:
 
     std::unique_ptr<IRStatement>& right();
     void dump(std::ostream& out) override;
+
+    std::string _graphviz(int &id, std::ostream &out);
 };
 }
 }
