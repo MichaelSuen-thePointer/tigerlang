@@ -52,9 +52,10 @@ void Frame::addFunction(std::string name, ir::IRTNode* body)
     _functionFragments[name].reset(body);
 }
 
-TigerFrame::TigerFrame(TigerFrame* staticLink): _staticLink(staticLink)
-                                              , _scopeOffset(1, 0)
-                                              , _parameterOffset(StaticLinkOffset)
+TigerFrame::TigerFrame(TigerFrame* staticLink)
+    : _staticLink(staticLink)
+    , _scopeOffset(1, 0)
+    , _parameterOffset(4)
 {
 }
 
@@ -129,7 +130,8 @@ TigerFrame* TigerFrame::frameByName(const std::string& name)
     return nullptr;
 }
 
-FrameGuard::FrameGuard(Frame& f): _f(f)
+FrameGuard::FrameGuard(Frame& f)
+    : _f(f)
 {
     _f.enterFrame();
 }
@@ -151,7 +153,7 @@ FrameScopeGuard::FrameScopeGuard(Frame& f)
 FrameScopeGuard::~FrameScopeGuard()
 {
 #ifdef DEBUG
-        assert(_currFrame == _f.currentFrame());
+    assert(_currFrame == _f.currentFrame());
 #endif
     _f.currentFrame()->outScope();
 }
