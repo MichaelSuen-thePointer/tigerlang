@@ -651,4 +651,308 @@ bool operator!=(const Type& l, const Type& r)
     return !(l == r);
 }
 
+
+    int ASTNode::autoIncreament = 0;
+    std::string ASTNode::graphvizCode = "";
+
+    std::string ASTNode::graphviz() {
+        graphvizCode = "digraph{}\n";
+        return "";
+    }
+
+    std::string Program::graphviz() {
+        graphvizCode = "digraph {\n";
+        _exp->graphviz();
+        graphvizCode += "}\n";
+        return "";
+    }
+
+    std::string Expression::graphviz() {
+        std::string name = "Expression" + std::to_string(id);
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string IdentifierTypeDeclaration::graphviz() {
+        std::string name = "IdentifierTypeDeclaration" + std::to_string(id);
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string VariableDeclaration::graphviz() {
+        std::string name = "VariableDeclaration" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _initializer->graphviz() + "\n";
+        return name;
+    }
+
+    std::string TypeDeclaration::graphviz() {
+        std::string name = "TypeDeclaration" + std::to_string(id);
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string FunctionParameter::graphviz() {
+        std::string name = "FunctionParameter" + id;
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string FunctionDeclaration::graphviz() {
+        std::string name = "FunctionDeclaration" + id;
+        graphvizCode += name + "\n";
+        for (auto& fp : _parameters) {
+            graphvizCode += name + "->" + fp.graphviz() + "\n";
+        }
+        graphvizCode += name + "->" + _body->graphviz() + "\n";
+        return name;
+    }
+
+    std::string Type::graphviz() {
+        std::string name = "Type" + std::to_string(id);
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string IdentifierType::graphviz() {
+        std::string name = "IdentifierType" + std::to_string(id);
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string ArrayType::graphviz() {
+        std::string name = "ArrayType" + id;
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string FieldDeclaration::graphviz() {
+        std::string name = "FieldDeclaration" + id;
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string RecordType::graphviz() {
+        std::string name = "RecordType" + std::to_string(id);
+        graphvizCode += name + "\n";
+        for (auto& fd : _fields) {
+            graphvizCode += name + "->" + fd.graphviz() + "\n";
+        }
+        return name;
+    }
+
+    std::string Identifier::graphviz() {
+        std::string name = "Identifier" + std::to_string(id);
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string Subscript::graphviz() {
+        std::string name = "Subscript" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _left->graphviz() + "\n";
+        graphvizCode += name + "->" + _right->graphviz() + "\n";
+        return name;
+    }
+
+    std::string FieldExpression::graphviz() {
+        std::string name = "FieldExpression" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _left->graphviz() + "\n";
+        return name;
+    }
+
+    std::string Nil::graphviz() {
+        std::string name = "Nil" + std::to_string(id);
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string IntLiteral::graphviz() {
+        std::string name = "IntLiteral" + std::to_string(id);
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string StringLiteral::graphviz() {
+        std::string name = "StringLiteral" + std::to_string(id);
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string Sequence::graphviz() {
+        std::string name = "Sequence" + std::to_string(id);
+        graphvizCode += name + "\n";
+        for (auto& e : _expressions) {
+            graphvizCode += name + "->" + e->graphviz() + "\n";
+        }
+        return name;
+    }
+
+    std::string Negation::graphviz() {
+        std::string name = "Negation" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _expression->graphviz() + "\n";
+        return name;
+    }
+
+    std::string Call::graphviz() {
+        std::string name = "Call" + std::to_string(id);
+        graphvizCode += name + "\n";
+        for (auto& a : _arguments) {
+            graphvizCode += name + "->" + a->graphviz() + "\n";
+        }
+        return name;
+    }
+
+    std::string Infix::_graphviz(std::string name) {
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _left->graphviz() + "\n";
+        graphvizCode += name + "->" + _right->graphviz() + "\n";
+        return name;
+    }
+
+    std::string Infix::graphviz() {
+        std::string name = "Infix" + std::to_string(id);
+        return _graphviz(name);
+    }
+
+    std::string Eq::graphviz() {
+        return _graphviz("Eq" + std::to_string(id));
+    }
+
+    std::string Ne::graphviz() {
+        return _graphviz("Ne" + std::to_string(id));
+    }
+
+    std::string Gt::graphviz() {
+        return _graphviz("Gt" + std::to_string(id));
+    }
+
+    std::string Ge::graphviz() {
+        return _graphviz("Ge" + std::to_string(id));
+    }
+
+    std::string Lt::graphviz() {
+        return _graphviz("Lt" + std::to_string(id));
+    }
+
+    std::string Le::graphviz() {
+        return _graphviz("Le" + std::to_string(id));
+    }
+
+    std::string Add::graphviz() {
+        return _graphviz("Add" + std::to_string(id));
+    }
+
+    std::string Sub::graphviz() {
+        return _graphviz("Sub" + std::to_string(id));
+    }
+
+    std::string Mul::graphviz() {
+        return _graphviz("Mul" + std::to_string(id));
+    }
+
+    std::string Div::graphviz() {
+        return _graphviz("Div" + std::to_string(id));
+    }
+
+    std::string And::graphviz() {
+        return _graphviz("And" + std::to_string(id));
+    }
+
+    std::string Or::graphviz() {
+        return _graphviz("Or" + std::to_string(id));
+    }
+
+    std::string ArrayCreate::graphviz() {
+        std::string name = "ArrayCreate" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _initializer->graphviz() + "\n";
+        graphvizCode += name + "->" + _size->graphviz() + "\n";
+        return name;
+    }
+
+    std::string FieldInitializer::graphviz() {
+        std::string name = "FieldInitializer" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _initializer->graphviz() + "\n";
+        return name;
+    }
+
+    std::string FieldCreate::graphviz() {
+        std::string name = "FiledCreate" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _initializer->graphviz() + "\n";
+        return name;
+    }
+
+    std::string Break::graphviz() {
+        std::string name = "Break" + std::to_string(id);
+        graphvizCode += name + "\n";
+        return name;
+    }
+
+    std::string RecordCreate::graphviz() {
+        std::string name = "RecordCreate" + std::to_string(id);
+        graphvizCode += name + "\n";
+        for (auto& fc : _fields) {
+            graphvizCode += name + "->" + fc.graphviz() + "\n";
+        }
+        return name;
+    }
+
+    std::string Assignment::graphviz() {
+        std::string name = "Assignment" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _left->graphviz() + "\n";
+        graphvizCode += name + "->" + _right->graphviz() + "\n";
+        return name;
+    }
+
+    std::string IfThenElse::graphviz() {
+        std::string name = "IfThenElse" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _condition->graphviz() + "\n";
+        graphvizCode += name + "->" + _thenBranch->graphviz() + "\n";
+        graphvizCode += name + "->" + _elseBranch->graphviz() + "\n";
+        return name;
+    }
+
+    std::string IfThen::graphviz() {
+        std::string name = "IfThen" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _condition->graphviz() + "\n";
+        graphvizCode += name + "->" + _thenBranch->graphviz() + "\n";
+        return name;
+    }
+
+    std::string While::graphviz() {
+        std::string name = "While" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _condition->graphviz() + "\n";
+        graphvizCode += name + "->" + _body->graphviz() + "\n";
+        return name;
+    }
+
+    std::string For::graphviz() {
+        std::string name = "For" + std::to_string(id);
+        graphvizCode += name + "\n";
+        graphvizCode += name + "->" + _lowerBound->graphviz() + "\n";
+        graphvizCode += name + "->" + _upperBound->graphviz() + "\n";
+        graphvizCode += name + "->" + _body->graphviz() + "\n";
+        return name;
+    }
+
+    std::string Let::graphviz() {
+        std::string name = "Let" + std::to_string(id);
+        graphvizCode += name + "\n";
+        for (auto& b : _bindings) {
+            graphvizCode += name + "->" + b->graphviz() + "\n";
+        }
+        for (auto& b : _body) {
+            graphvizCode += name + "->" + b->graphviz() + "\n";
+        }
+        return name;
+    }
 }

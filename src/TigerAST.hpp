@@ -17,6 +17,9 @@ class ASTNode
 {
 protected:
     location _loc;
+    int id;
+private:
+    static int autoIncreament;
 public:
     virtual ~ASTNode() = default;
     void loc(location const& loc);
@@ -28,6 +31,9 @@ public:
     void semanticError(std::string const& msg) const;
 public:
     virtual void semanticCheckImpl(SymbolTable& table);
+    virtual std::string graphviz();
+
+    static std::string graphvizCode;
 };
 
 class Expression;
@@ -40,6 +46,7 @@ public:
     explicit Program(Expression* r);
 
     const std::unique_ptr<Expression>& expression() const;
+    virtual std::string graphviz();
 
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
@@ -60,6 +67,7 @@ public:
     Type* expressionType();
 
     virtual std::unique_ptr<ir::IRTNode> toIR(Frame& f) = 0;
+    virtual std::string graphviz();
 };
 
 class Declaration : public ASTNode
@@ -80,6 +88,7 @@ protected:
     bool _escape = false;
 public:
     IdentifierTypeDeclaration(std::string id, std::string typeID);
+    virtual std::string graphviz();
 
     const std::string& identifier() const;
 
@@ -100,6 +109,7 @@ protected:
 
 public:
     VariableDeclaration(std::string id, std::string typeID, Expression* exp);
+    virtual std::string graphviz();
 
     const std::unique_ptr<Expression>& initializer() const;
 protected:
@@ -120,6 +130,7 @@ protected:
 
 public:
     TypeDeclaration(std::string typeID, Type* type);
+    virtual std::string graphviz();
 
     const std::string& typeId() const;
 
@@ -137,6 +148,7 @@ class FunctionParameter : public IdentifierTypeDeclaration
 {
 public:
     FunctionParameter(std::string id, std::string typeID);
+    virtual std::string graphviz();
 
     void semanticCheckImpl(SymbolTable& table) override;
 
@@ -155,6 +167,7 @@ protected:
 public:
     FunctionDeclaration(std::string identifier, std::vector<FunctionParameter>& params,
         std::string returnType, Expression* body);
+    virtual std::string graphviz();
 
     const std::string& identifier() const;
 
@@ -181,6 +194,7 @@ public:
 
     friend bool operator==(const Type& l, const Type& r);
     friend bool operator!=(const Type& l, const Type& r);
+    virtual std::string graphviz();
 
     enum Kind
     {
@@ -195,6 +209,7 @@ protected:
     std::string _identifier;
 public:
     explicit IdentifierType(std::string id);
+    virtual std::string graphviz();
 
     bool isInt() const override;
 
@@ -215,6 +230,7 @@ protected:
 
 public:
     explicit ArrayType(std::string id);
+    virtual std::string graphviz();
     bool isArray() const override;
 
     const std::string& typeId() const;
@@ -232,6 +248,7 @@ protected:
 
 public:
     FieldDeclaration(std::string id, std::string typeID);
+    virtual std::string graphviz();
 
     const std::string& identifier() const;
 
@@ -245,6 +262,7 @@ protected:
 
 public:
     RecordType(std::vector<FieldDeclaration>& fields);
+    virtual std::string graphviz();
     bool isRecord() const override;
 
     const std::vector<FieldDeclaration>& fields() const;
@@ -261,6 +279,7 @@ protected:
 
 public:
     Identifier(std::string id);
+    virtual std::string graphviz();
 
     const std::string& identifier() const;
 
@@ -278,6 +297,7 @@ protected:
 
 public:
     Subscript(Expression* l, Expression* r);
+    virtual std::string graphviz();
 
     const std::unique_ptr<Expression>& left() const;
 
@@ -295,6 +315,7 @@ protected:
     std::string _identifier;
 public:
     FieldExpression(Expression* l, std::string r);
+    virtual std::string graphviz();
 
     const std::unique_ptr<Expression>& left() const;
 
@@ -312,6 +333,7 @@ protected:
     void semanticCheckImpl(SymbolTable& table) override;
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
+    virtual std::string graphviz();
 };
 
 class IntLiteral : public Expression
@@ -328,6 +350,7 @@ protected:
     void semanticCheckImpl(SymbolTable& table) override;
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
+    virtual std::string graphviz();
 };
 
 class StringLiteral : public Expression
@@ -337,6 +360,7 @@ protected:
 
 public:
     explicit StringLiteral(std::string v);
+    virtual std::string graphviz();
 
     const std::string& value() const;
 
@@ -360,6 +384,7 @@ protected:
     void semanticCheckImpl(SymbolTable& table) override;
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
+    virtual std::string graphviz();
 };
 
 class Negation : public Expression
@@ -369,6 +394,7 @@ protected:
 
 public:
     explicit Negation(Expression* exp);
+    virtual std::string graphviz();
 
     const std::unique_ptr<Expression>& expression() const;
 
@@ -386,6 +412,7 @@ protected:
     FunctionDeclaration* _func = nullptr;
 public:
     Call(std::string id, std::vector<Expression *> args);
+    virtual std::string graphviz();
 
     const std::string& identifier() const;
 
@@ -405,6 +432,7 @@ protected:
 
 public:
     Infix(Expression* l, Expression* r);
+    virtual std::string graphviz();
 
     const std::unique_ptr<Expression>& left() const;
 
@@ -413,12 +441,15 @@ public:
 protected:
     virtual void semanticCheckInfix(SymbolTable& table);
     void semanticCheckImpl(SymbolTable& table) override final;
+
+    std::string _graphviz(std::string name);
 };
 
 class Eq : public Infix
 {
 public:
     Eq(Expression* l, Expression* r);
+    virtual std::string graphviz();
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
@@ -430,6 +461,7 @@ class Ne : public Infix
 {
 public:
     Ne(Expression* l, Expression* r);
+    virtual std::string graphviz();
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
@@ -446,6 +478,7 @@ protected:
     void semanticCheckInfix(SymbolTable& table) override;
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
+    virtual std::string graphviz();
 };
 
 class Ge : public Infix
@@ -457,12 +490,14 @@ protected:
     void semanticCheckInfix(SymbolTable& table) override;
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
+    virtual std::string graphviz();
 };
 
 class Lt : public Infix
 {
 public:
     Lt(Expression* l, Expression* r);
+    virtual std::string graphviz();
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
@@ -474,6 +509,7 @@ class Le : public Infix
 {
 public:
     Le(Expression* l, Expression* r);
+    virtual std::string graphviz();
 
 protected:
     void semanticCheckInfix(SymbolTable& table) override;
@@ -485,6 +521,7 @@ class Add : public Infix
 {
 public:
     Add(Expression* l, Expression* r);
+    virtual std::string graphviz();
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
@@ -493,6 +530,7 @@ class Sub : public Infix
 {
 public:
     Sub(Expression* l, Expression* r);
+    virtual std::string graphviz();
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
@@ -501,6 +539,7 @@ class Mul : public Infix
 {
 public:
     Mul(Expression* l, Expression* r);
+    virtual std::string graphviz();
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
@@ -509,6 +548,7 @@ class Div : public Infix
 {
 public:
     Div(Expression* l, Expression* r);
+    virtual std::string graphviz();
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
@@ -517,6 +557,7 @@ class And : public Infix
 {
 public:
     And(Expression* l, Expression* r);
+    virtual std::string graphviz();
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
 };
@@ -527,6 +568,7 @@ public:
     Or(Expression* l, Expression* r);
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
+    virtual std::string graphviz();
 };
 
 class ArrayCreate : public Expression
@@ -538,6 +580,7 @@ protected:
 
 public:
     ArrayCreate(std::string typeId, Expression* expression, Expression* initializer);
+    virtual std::string graphviz();
 
     const std::string& typeId() const;
 
@@ -558,6 +601,7 @@ protected:
     std::unique_ptr<Expression> _initializer;
 public:
     FieldInitializer(std::string id, Expression* initializer);
+    virtual std::string graphviz();
 
     const std::string& identifier() const;
 
@@ -572,6 +616,7 @@ protected:
 
 public:
     FieldCreate(std::string id, Expression* init);
+    virtual std::string graphviz();
 
     const std::string& identifier() const;
 
@@ -585,6 +630,7 @@ protected:
     void semanticCheckImpl(SymbolTable& table) override;
 public:
     std::unique_ptr<ir::IRTNode> toIR(Frame& f) override;
+    virtual std::string graphviz();
 };
 
 class RecordCreate : public Expression
@@ -595,6 +641,7 @@ protected:
 
 public:
     RecordCreate(std::string id, std::vector<std::tuple<std::string, Expression*, location>>& fields);
+    virtual std::string graphviz();
 
     const std::string& typeId() const;
 
@@ -614,6 +661,7 @@ protected:
 
 public:
     Assignment(Expression* l, Expression* r);
+    virtual std::string graphviz();
 
     const std::unique_ptr<Expression>& left() const;
 
@@ -634,6 +682,7 @@ protected:
 
 public:
     IfThenElse(Expression* cond, Expression* then, Expression* els);
+    virtual std::string graphviz();
 
     const std::unique_ptr<Expression>& condition() const;
 
@@ -655,6 +704,7 @@ protected:
 
 public:
     IfThen(Expression* cond, Expression* then);
+    virtual std::string graphviz();
 
     const std::unique_ptr<Expression>& condition() const;
 
@@ -674,6 +724,7 @@ protected:
 
 public:
     While(Expression* cond, Expression* body);
+    virtual std::string graphviz();
 
     const std::unique_ptr<Expression>& condition() const;
 
@@ -695,6 +746,7 @@ protected:
 
 public:
     For(std::string id, Expression* l, Expression* r, Expression* body);
+    virtual std::string graphviz();
 
     const std::string& identifier() const;
 
@@ -718,6 +770,7 @@ protected:
 
 public:
     Let(std::vector<Declaration *> bindings, std::vector<Expression *> body);
+    virtual std::string graphviz();
 
     const std::vector<std::unique_ptr<Declaration>>& bindings() const;
 

@@ -6,6 +6,7 @@
 #include "TigerIRT.hpp"
 int main()
 {
+    freopen("../src/testcases/queens.tig", "r", stdin);
     tiger::TigerScanner scanner(&std::cin);
     std::unique_ptr<tiger::Program> prog;
     tiger::TigerParser parser(scanner, prog);
@@ -18,6 +19,8 @@ int main()
     else
     {
         std::cout << "Parse succeed\n";
+        prog->graphviz();
+        std::cout << prog->graphvizCode;
     }
     try
     {
