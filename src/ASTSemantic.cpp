@@ -34,7 +34,11 @@ void ASTNode::semanticError(std::string const& msg) const
     throw std::runtime_error(ostr.str());
 }
 
-void Program::semanticCheckImpl(SymbolTable& table)
+    ASTNode::ASTNode() {
+        autoIncreament++;
+    }
+
+    void Program::semanticCheckImpl(SymbolTable& table)
 {
     _exp->semanticCheckImpl(table);
 }

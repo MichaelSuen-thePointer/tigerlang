@@ -22,6 +22,7 @@ private:
     static int autoIncreament;
 public:
     virtual ~ASTNode() = default;
+    ASTNode();
     void loc(location const& loc);
 
     const location& loc() const;
