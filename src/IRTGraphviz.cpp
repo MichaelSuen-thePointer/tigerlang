@@ -58,7 +58,7 @@ namespace tiger {
             out << name << "->" << _func->_graphviz(id, out) << " [label=\"func\"]\n";
             int c = 0;
             for (auto& param : _parameters) {
-                out << name << "->" << param->_graphviz(id, out) << " [label=\"param" << c << "\"]\n";
+                out << name << "->" << param->_graphviz(id, out) << " [label=\"param" << c++ << "\"]\n";
             }
             return name;
         }
