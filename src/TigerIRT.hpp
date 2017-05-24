@@ -348,39 +348,51 @@ namespace tiger {
 
             void falseBranch(std::string falseBranch);
 
-            void dump(std::ostream &out) override;
+            void _dump(std::ostream &out, std::string cond);
 
-            std::string _graphviz(int &id, std::ostream &out);
+            std::string __graphviz(int &id, std::ostream &out, std::string cond);
         };
 
         class EqCompare : public IRCompareJump {
         public:
             EqCompare(ASTNode *ast, IRExpression *left, IRExpression *right);
+            virtual void dump(std::ostream &out);
+            virtual std::string _graphviz(int &id, std::ostream &out);
         };
 
         class NeCompare : public IRCompareJump {
         public:
             NeCompare(ASTNode *ast, IRExpression *left, IRExpression *right);
+            virtual void dump(std::ostream &out);
+            virtual std::string _graphviz(int &id, std::ostream &out);
         };
 
         class GtCompare : public IRCompareJump {
         public:
             GtCompare(ASTNode *ast, IRExpression *left, IRExpression *right);
+            virtual void dump(std::ostream &out);
+            virtual std::string _graphviz(int &id, std::ostream &out);
         };
 
         class GeCompare : public IRCompareJump {
         public:
             GeCompare(ASTNode *ast, IRExpression *left, IRExpression *right);
+            virtual void dump(std::ostream &out);
+            virtual std::string _graphviz(int &id, std::ostream &out);
         };
 
         class LtCompare : public IRCompareJump {
         public:
             LtCompare(ASTNode *ast, IRExpression *left, IRExpression *right);
+            virtual void dump(std::ostream &out);
+            virtual std::string _graphviz(int &id, std::ostream &out);
         };
 
         class LeCompare : public IRCompareJump {
         public:
             LeCompare(ASTNode *ast, IRExpression *left, IRExpression *right);
+            virtual void dump(std::ostream &out);
+            virtual std::string _graphviz(int &id, std::ostream &out);
         };
 
         class SequenceExpression : public IRStatement {

@@ -110,13 +110,38 @@ namespace tiger {
             return "";
         }
 
-        std::string IRCompareJump::_graphviz(int& id, std::ostream& out)
+        std::string IRCompareJump::__graphviz(int& id, std::ostream& out, std::string cond)
         {
             std::string name = "CJump" + std::to_string(id++);
-            out << name << " [label=\"{<f0> CJump|<f1> T:" << _trueBranch << "|<f2> F:" << _falseBranch << "}\"]\n";
+            out << name << " [label=\"{<f0> CJump|<f1> Cond: " << cond << "|<f2> T:" << _trueBranch
+                << "|<f3> F:" << _falseBranch << "}\"]\n";
             out << name << "->" << _left->_graphviz(id, out) << " [label=\"left\"]\n";
             out << name << "->" << _right->_graphviz(id, out) << " [label=\"right\"]\n";
             return name;
+        }
+
+        std::string EqCompare::_graphviz(int &id, std::ostream &out) {
+            return __graphviz(id, out, "eq");
+        }
+
+        std::string NeCompare::_graphviz(int &id, std::ostream &out) {
+            return __graphviz(id, out, "ne");
+        }
+
+        std::string LtCompare::_graphviz(int &id, std::ostream &out) {
+            return __graphviz(id, out, "lt");
+        }
+
+        std::string GtCompare::_graphviz(int &id, std::ostream &out) {
+            return __graphviz(id, out, "gt");
+        }
+
+        std::string LeCompare::_graphviz(int &id, std::ostream &out) {
+            return __graphviz(id, out, "le");
+        }
+
+        std::string GeCompare::_graphviz(int &id, std::ostream &out) {
+            return __graphviz(id, out, "ge");
         }
 
         std::string SequenceExpression::_graphviz(int& id, std::ostream& out)

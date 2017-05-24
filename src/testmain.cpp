@@ -35,12 +35,15 @@ int main()
     tiger::Frame f;
     auto ir = prog->expression()->toIR(f);
     std::ofstream outFile("IROut.json");
+    std::ofstream outFile2("IROut.gv");
     ir->dump(outFile);
-    ir->graphviz(std::cout);
+    ir->graphviz(outFile2);
 
     for (auto& func : f.functionFragments())
     {
         std::ofstream funcDump(std::string("IR") + func.first + ".json");
         func.second->dump(funcDump);
+        std::ofstream funcDump2(std::string("IR") + func.first + ".gv");
+        func.second->graphviz(funcDump2);
     }
 }
