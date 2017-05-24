@@ -55,7 +55,7 @@ void Frame::addFunction(std::string name, ir::IRTNode* body)
 TigerFrame::TigerFrame(TigerFrame* staticLink)
     : _staticLink(staticLink)
     , _scopeOffset(1, 0)
-    , _parameterOffset(4)
+    , _parameterOffset(8)
 {
 }
 
