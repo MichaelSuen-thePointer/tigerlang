@@ -38,16 +38,16 @@ void BinaryOperation::dump(std::ostream& out)
 void FunctionCall::dump(std::ostream& out)
 {
     out << "{\n\"Type\": \"FunctionCall\",\n\"Name\": "; _func->dump(out);;
-    
+    out << ",\n\"Params\": [";
     int c = 0;
     for (auto& param : _parameters)
     {
-        out << ",\n";
-        out << "\"Param " << c << "\": ";
+        if (c != 0)
+            out << ", ";
         param->dump(out);
         c++;
     }
-    out << "\n}";
+    out << "]\n}";
 }
 
 void EffectSequence::dump(std::ostream& out)
