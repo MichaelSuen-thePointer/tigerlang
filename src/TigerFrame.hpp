@@ -43,6 +43,24 @@ public:
     virtual void generatePlan9(std::string text, std::ostream& out);
 };
 
+/*
++-----------+
+|param 2    |    +32
++-----------+
+|param 1    |    +24  
++-----------+
+|static link|    +16
++-----------+
+|return addr|    +8
++-----------+
+|caller rbp | <- rbp
++-----------+
+|local var 1|    -8
++-----------+
+|local var 1|    -16 <- rsp
++-----------+
+*/
+
 class TigerFrame
 {
 protected:
@@ -54,7 +72,7 @@ protected:
 
 public:
     constexpr static int WordSize = 8;
-    constexpr static int StaticLinkOffset = 16;
+    constexpr static int StaticLinkOffset = 2 * WordSize;
     explicit TigerFrame(TigerFrame* staticLink);
 
     TigerFrame* staticLink() const;

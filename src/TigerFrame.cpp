@@ -55,7 +55,7 @@ void Frame::addFunction(std::string name, ir::IRTNode* body)
 TigerFrame::TigerFrame(TigerFrame* staticLink)
     : _staticLink(staticLink)
     , _scopeOffset(1, 0)
-    , _parameterOffset(8)
+    , _parameterOffset(2 * WordSize)
 {
 }
 
@@ -91,7 +91,7 @@ int TigerFrame::getOffset(const std::string& name)
     {
         auto r = _variables.find(name);
         if (r != _variables.end() && r->second >= _scopeOffset.back())
-        { //Õ»±äÁ¿µÄoffsetÊÇ¸ºµÄ
+        { //Õ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½offsetï¿½Ç¸ï¿½ï¿½ï¿½
             return r->second;
         }
     }
@@ -114,7 +114,7 @@ TigerFrame* TigerFrame::frameByName(const std::string& name)
         {
             auto r = current->_variables.find(name);
             if (r != current->_variables.end() && r->second >= current->_scopeOffset.back())
-            { //Õ»±äÁ¿µÄoffsetÊÇ¸ºµÄ
+            { //Õ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½offsetï¿½Ç¸ï¿½ï¿½ï¿½
                 return current;
             }
         }
