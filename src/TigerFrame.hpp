@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <iostream>
 
 namespace tiger
 {
@@ -38,6 +39,8 @@ public:
     void setLoopBreakLabel(std::string label);
 
     const std::map<std::string, std::unique_ptr<ir::IRTNode>>& functionFragments() const;
+
+    virtual void generatePlan9(std::string text, std::ostream& out);
 };
 
 class TigerFrame
@@ -50,8 +53,13 @@ protected:
     int _parameterOffset;
 
 public:
-    constexpr static int WordSize = 4;
-    constexpr static int StaticLinkOffset = 8;
+<<<<<<< HEAD
+    constexpr static int WordSize = 8;
+    constexpr static int StaticLinkOffset = 16;
+=======
+    constexpr static int WordSize = 8;
+    constexpr static int StaticLinkOffset = 0;
+>>>>>>> 3b17d1882037ece2b3aa250d8d898f33c508c176
     explicit TigerFrame(TigerFrame* staticLink);
 
     TigerFrame* staticLink() const;

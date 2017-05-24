@@ -520,9 +520,9 @@ std::unique_ptr<ir::IRTNode> For::toIR(Frame& f)
             new ExpressionStatement(nullptr,
                 new Minus(nullptr,
                     TemporaryVariable::newSP(),
-                    new Constant(4))),
+                    new Constant(8))),
             forIR),
-        new Plus(nullptr, TemporaryVariable::newSP(), new Constant(4)));
+        new Plus(nullptr, TemporaryVariable::newSP(), new Constant(8)));
 }
 
 std::unique_ptr<ir::IRTNode> Let::toIR(Frame& f)
