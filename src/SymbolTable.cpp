@@ -17,37 +17,37 @@ void SymbolTable::initializeIntrinsic()
     std::vector<FunctionParameter> p;
     {
         static std::unique_ptr<FunctionDeclaration> printFunc{
-            new FunctionDeclaration("print", p = {{"s", "string"}}, "", nullptr)
+            new FunctionDeclaration("print", p = {{"s", "string"}}, "", nullptr, true)
         };
         addFunction("print", printFunc.get());
     }
     {
         static std::unique_ptr<FunctionDeclaration> flushFunc{
-            new FunctionDeclaration("flush", p = {}, "", nullptr)
+            new FunctionDeclaration("flush", p = {}, "", nullptr, true)
         };
         addFunction("flush", flushFunc.get());
     }
     {
         static std::unique_ptr<FunctionDeclaration> getcharFunc{
-            new FunctionDeclaration("getchar", p = {}, "string", nullptr)
+            new FunctionDeclaration("getchar", p = {}, "string", nullptr, true)
         };
         addFunction("getchar", getcharFunc.get());
     }
     {
         static std::unique_ptr<FunctionDeclaration> ordFunc{
-            new FunctionDeclaration("ord", p = {{"s", "string"}}, "int", nullptr)
+            new FunctionDeclaration("ord", p = {{"s", "string"}}, "int", nullptr, true)
         };
         addFunction("ord", ordFunc.get());
     }
     {
         static std::unique_ptr<FunctionDeclaration> chrFunc{
-            new FunctionDeclaration("chr", p = { { "i", "int" } }, "string", nullptr)
+            new FunctionDeclaration("chr", p = { { "i", "int" } }, "string", nullptr, true)
         };
         addFunction("chr", chrFunc.get());
     }
     {
         static std::unique_ptr<FunctionDeclaration> sizeFunc{
-            new FunctionDeclaration("size", p = { { "s", "string" } }, "int", nullptr)
+            new FunctionDeclaration("size", p = { { "s", "string" } }, "int", nullptr, true)
         };
         addFunction("size", sizeFunc.get());
     }
@@ -55,7 +55,7 @@ void SymbolTable::initializeIntrinsic()
         static std::unique_ptr<FunctionDeclaration> substringFunc{
             new FunctionDeclaration("substring",
             p = {{ "s", "string" },{"first", "int"},{"n", "int"} },
-            "string", nullptr)
+            "string", nullptr, true)
         };
         addFunction("substring", substringFunc.get());
     }
@@ -63,7 +63,7 @@ void SymbolTable::initializeIntrinsic()
         static std::unique_ptr<FunctionDeclaration> concatFunc{
             new FunctionDeclaration("concat",
             p = { { "s1", "string" },{ "s2", "string" } },
-            "string", nullptr)
+            "string", nullptr, true)
         };
         addFunction("concat", concatFunc.get());
     }
@@ -71,7 +71,7 @@ void SymbolTable::initializeIntrinsic()
         static std::unique_ptr<FunctionDeclaration> notFunc{
             new FunctionDeclaration("not",
             p = { { "i", "int" } },
-            "int", nullptr)
+            "int", nullptr, true)
         };
         addFunction("not", notFunc.get());
     }
@@ -79,7 +79,7 @@ void SymbolTable::initializeIntrinsic()
         static std::unique_ptr<FunctionDeclaration> exitFunc{
             new FunctionDeclaration("exit",
             p = { { "i", "int" } },
-            "", nullptr)
+            "", nullptr, true)
         };
         addFunction("exit", exitFunc.get());
     }
