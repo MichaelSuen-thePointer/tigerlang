@@ -175,6 +175,8 @@ public:
 
     const std::string& identifier() const;
 
+    std::string mangledName() const;
+
     const std::vector<FunctionParameter>& parameters() const;
 
     const std::string& returnType() const;
@@ -421,7 +423,6 @@ public:
     const std::string& identifier() const;
 
     const std::vector<std::unique_ptr<Expression>>& arguments() const;
-
 protected:
     void semanticCheckImpl(SymbolTable& table) override;
 public:

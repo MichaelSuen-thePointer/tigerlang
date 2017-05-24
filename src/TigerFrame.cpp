@@ -55,7 +55,7 @@ void Frame::addFunction(std::string name, ir::IRTNode* body)
 TigerFrame::TigerFrame(TigerFrame* staticLink)
     : _staticLink(staticLink)
     , _scopeOffset(1, 0)
-    , _parameterOffset(4)
+    , _parameterOffset(8)
 {
 }
 
@@ -126,7 +126,6 @@ TigerFrame* TigerFrame::frameByName(const std::string& name)
             }
         }
     }
-    assert(0);
     return nullptr;
 }
 
@@ -172,4 +171,5 @@ int TigerFrame::currentOffset() const
 {
     return _scopeOffset.back();
 }
+
 }

@@ -107,16 +107,24 @@ std::unique_ptr<IRTNode> Negation::toIR(Frame& f)
 std::unique_ptr<IRTNode> Call::toIR(Frame& f)
 {
     std::vector<IRExpression*> args;
+    auto mangledFuncName = _func->mangledName();
+    if (!_func->isBuiltin())
+    { //staticlink as another variable
+        auto staticLinkName = "__staticlink_" + mangledFuncName;
+        if (f.currentFrame()->frameByName(staticLinkName) == nullptr)
+        {
+            args.push_back(TemporaryVariable::newFP());
+        }
+        else
+        {
+            args.push_back(traceStaticLink(f, staticLinkName).release());
+        }
+    }
     std::transform(_arguments.begin(), _arguments.end(), std::back_inserter(args), [&f](std::unique_ptr<Expression>& e)
     {
         return e->toIR(f).release()->toExpression();
     });
-    if (!_func->isBuiltin())
-    {
-        auto mangledFuncName = Label::name(_identifier, _func->loc().begin.line, _func->loc().begin.column, _func->loc().end.column);
-        return make_unique<FunctionCall>(this, new Name(this, mangledFuncName), args);
-    }
-    return make_unique<FunctionCall>(this, new Name(this, _func->identifier()), args);
+    return make_unique<FunctionCall>(this, new Name(this, mangledFuncName), args);
 }
 
 std::unique_ptr<ir::IRTNode> Add::toIR(Frame& f)
@@ -586,11 +594,13 @@ void FunctionParameter::addToFrame(Frame& f)
 void FunctionDeclaration::addToFrame(Frame& f)
 {
     FrameGuard fg{ f };
+    FunctionParameter myStaticLink{ "__staticlink_" + mangledName(), "" };
+    myStaticLink.addToFrame(f);
     for (auto& param : _parameters)
     {
         param.addToFrame(f);
     }
-    auto funcName = Label::name(_identifier, loc().begin.line, loc().begin.column, loc().end.column);
+    auto funcName = mangledName();
     if (_body->hasValue())
     {
         auto body = _body->toIR(f).release()->toExpression();
@@ -601,6 +611,15 @@ void FunctionDeclaration::addToFrame(Frame& f)
         auto body = _body->toIR(f).release()->toStatement();
         f.addFunction(funcName, new SequenceExpression(this, new Label(funcName), body));
     }
+}
+
+std::string FunctionDeclaration::mangledName() const
+{
+    if (_isBuiltin)
+    {
+        return identifier();
+    }
+    return Label::name(_identifier, loc().begin.line, loc().begin.column, loc().end.column);
 }
 
 }
