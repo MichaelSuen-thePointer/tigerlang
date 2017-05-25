@@ -167,7 +167,11 @@ const std::map<std::string, std::unique_ptr<ir::IRTNode>>& Frame::functionFragme
     return _functionFragments;
 }
 
-int TigerFrame::currentOffset() const
+    const std::map<std::string, std::string> &Frame::stringFragments() const {
+        return _stringFragments;
+    }
+
+    int TigerFrame::currentOffset() const
 {
     return _scopeOffset.back();
 }

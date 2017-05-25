@@ -5,13 +5,13 @@ namespace tiger
 
 std::string TigerScanner::escapeString(const char *text, TigerParser::location_type* loc)
 {
-    std::string ret;
+    /*std::string ret;
     auto res = escapeStringImpl(text, ret);
     if (res != 0)
     {
         error(text, loc);
-    }
-    return ret;
+    }*/
+    return text;
 }
 
 int TigerScanner::escapeStringImpl(const char *raw, std::string &ret)

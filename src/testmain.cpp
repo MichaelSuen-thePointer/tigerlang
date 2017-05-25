@@ -4,6 +4,7 @@
 #include "tiger.tab.hh"
 #include "TigerFrame.hpp"
 #include "TigerIRT.hpp"
+
 int main()
 {
     freopen("../src/testcases/queens.tig", "r", stdin);
@@ -46,4 +47,14 @@ int main()
         std::ofstream funcDump2(std::string("IR") + func.first + ".gv");
         func.second->graphviz(funcDump2);
     }
+
+    std::ofstream outFile3("strings.json");
+    outFile3 << "{\n";
+    int c = 0;
+    for (auto& str : f.stringFragments()) {
+        if (c != 0) outFile3 << ",\n";
+        outFile3 << "\"" << str.first << "\":" << str.second;
+        c++;
+    }
+    outFile3 << "}\n";
 }

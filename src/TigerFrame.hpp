@@ -40,6 +40,8 @@ public:
 
     const std::map<std::string, std::unique_ptr<ir::IRTNode>>& functionFragments() const;
 
+    const std::map<std::string, std::string>& stringFragments() const;
+
     virtual void generatePlan9(std::string text, std::ostream& out);
 };
 
