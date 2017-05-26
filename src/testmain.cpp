@@ -7,7 +7,7 @@
 
 int main()
 {
-    freopen("../src/testcases/hello.tig", "r", stdin);
+    freopen("../src/testcases/queens.tig", "r", stdin);
     tiger::TigerScanner scanner(&std::cin);
     std::unique_ptr<tiger::Program> prog;
     tiger::TigerParser parser(scanner, prog);
