@@ -701,14 +701,14 @@ std::string TypeDeclaration::graphviz()
 
 std::string FunctionParameter::graphviz()
 {
-    std::string name = "FunctionParameter" + id;
+    std::string name = "FunctionParameter" + std::to_string(id);
     graphvizCode += name + "\n";
     return name;
 }
 
 std::string FunctionDeclaration::graphviz()
 {
-    std::string name = "FunctionDeclaration" + id;
+    std::string name = "FunctionDeclaration" + std::to_string(id);
     graphvizCode += name + "\n";
     for (auto& fp : _parameters)
     {
@@ -739,14 +739,14 @@ std::string IdentifierType::graphviz()
 
 std::string ArrayType::graphviz()
 {
-    std::string name = "ArrayType" + id;
+    std::string name = "ArrayType" + std::to_string(id);
     graphvizCode += name + "\n";
     return name;
 }
 
 std::string FieldDeclaration::graphviz()
 {
-    std::string name = "FieldDeclaration" + id;
+    std::string name = "FieldDeclaration" + std::to_string(id);
     graphvizCode += name + "\n";
     return name;
 }
