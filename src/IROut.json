@@ -1,0 +1,316 @@
+{
+"Type": "Seq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "IgnoreValue",
+"Exp": {
+"Type": "Binop",
+"op": "N5tiger2ir5MinusE",
+"Left": {
+"Type": "TempVar",
+"Id": "sp"
+},
+"Right": {
+"Type": "Constant",
+"Value": 40
+}
+}
+},
+"Right": {
+"Type": "Move",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": 8
+}
+}
+},
+"Right": {
+"Type": "Move",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -16
+}
+}
+},
+"Right": {
+"Type": "FunctionCall",
+"Name": {
+"Type": "Name",
+"Name": "builtin_initarray"
+},
+"Params": [{
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+}, {
+"Type": "Constant",
+"Value": 0
+}]
+}
+}
+},
+"Right": {
+"Type": "Move",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -24
+}
+}
+},
+"Right": {
+"Type": "FunctionCall",
+"Name": {
+"Type": "Name",
+"Name": "builtin_initarray"
+},
+"Params": [{
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+}, {
+"Type": "Constant",
+"Value": 0
+}]
+}
+}
+},
+"Right": {
+"Type": "Move",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -32
+}
+}
+},
+"Right": {
+"Type": "FunctionCall",
+"Name": {
+"Type": "Name",
+"Name": "builtin_initarray"
+},
+"Params": [{
+"Type": "Binop",
+"op": "N5tiger2ir5MinusE",
+"Left": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+},
+"Right": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": 1
+}
+}, {
+"Type": "Constant",
+"Value": 0
+}]
+}
+}
+},
+"Right": {
+"Type": "Move",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -40
+}
+}
+},
+"Right": {
+"Type": "FunctionCall",
+"Name": {
+"Type": "Name",
+"Name": "builtin_initarray"
+},
+"Params": [{
+"Type": "Binop",
+"op": "N5tiger2ir5MinusE",
+"Left": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+},
+"Right": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": 1
+}
+}, {
+"Type": "Constant",
+"Value": 0
+}]
+}
+}
+},
+"Right": {
+"Type": "IgnoreValue",
+"Exp": {
+"Type": "FunctionCall",
+"Name": {
+"Type": "Name",
+"Name": "try20_5_13"
+},
+"Params": [{
+"Type": "TempVar",
+"Id": "fp"
+}, {
+"Type": "Constant",
+"Value": 0
+}]
+}
+}
+},
+"Right": {
+"Type": "IgnoreValue",
+"Exp": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "sp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -40
+}
+}
+}
+}

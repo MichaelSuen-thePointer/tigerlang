@@ -12,7 +12,7 @@ namespace ir
 {
 class IRTNode;
 }
-class Frame
+class Frame final
 {
 private:
     std::vector<std::unique_ptr<TigerFrame>> _frameBuffer;
@@ -23,6 +23,8 @@ private:
 
 public:
     Frame();
+    
+    ~Frame();
 
     TigerFrame* currentFrame();
 
@@ -42,7 +44,7 @@ public:
 
     const std::map<std::string, std::string>& stringFragments() const;
 
-    virtual void generatePlan9(std::string text, std::ostream& out);
+    void generatePlan9(std::string text, std::ostream& out);
 };
 
 /*

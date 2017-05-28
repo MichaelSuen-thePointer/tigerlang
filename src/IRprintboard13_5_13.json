@@ -1,0 +1,480 @@
+{
+"Type": "Seq",
+"Left": {
+"Type": "Label",
+"Name": "printboard13_5_13"
+},
+"Right": {
+"Type": "IgnoreValue",
+"Exp": {
+"Type": "Eseq",
+"Left": {
+"Type": "IgnoreValue",
+"Exp": {
+"Type": "Eseq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "IgnoreValue",
+"Exp": {
+"Type": "Binop",
+"op": "N5tiger2ir5MinusE",
+"Left": {
+"Type": "TempVar",
+"Id": "sp"
+},
+"Right": {
+"Type": "Constant",
+"Value": 8
+}
+}
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "Move",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": 0
+}
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "Label",
+"Name": "forStart14_9_12"
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "CJump",
+"Cond": "le",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+},
+"Right": {
+"Type": "Binop",
+"op": "N5tiger2ir5MinusE",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": 16
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": 1
+}
+},
+"True": "forStart14_9_12",
+"False": "forEnd14_9_12"
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "IgnoreValue",
+"Exp": {
+"Type": "Eseq",
+"Left": {
+"Type": "IgnoreValue",
+"Exp": {
+"Type": "Eseq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "IgnoreValue",
+"Exp": {
+"Type": "Binop",
+"op": "N5tiger2ir5MinusE",
+"Left": {
+"Type": "TempVar",
+"Id": "sp"
+},
+"Right": {
+"Type": "Constant",
+"Value": 8
+}
+}
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "Move",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -16
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": 0
+}
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "Label",
+"Name": "forStart15_7_10"
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "CJump",
+"Cond": "le",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -16
+}
+}
+},
+"Right": {
+"Type": "Binop",
+"op": "N5tiger2ir5MinusE",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": 16
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": 1
+}
+},
+"True": "forStart15_7_10",
+"False": "forEnd15_7_10"
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "IgnoreValue",
+"Exp": {
+"Type": "FunctionCall",
+"Name": {
+"Type": "Name",
+"Name": "print"
+},
+"Params": [{
+"Type": "Eseq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "CJump",
+"Cond": "eq",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": 16
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": -24
+}
+}
+},
+"Right": {
+"Type": "Binop",
+"op": "N5tiger2ir8MultiplyE",
+"Left": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -8
+}
+}
+},
+"Right": {
+"Type": "Constant",
+"Value": 8
+}
+}
+}
+},
+"Right": {
+"Type": "Mem",
+"Offset": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "fp"
+},
+"Right": {
+"Type": "Constant",
+"Value": -16
+}
+}
+},
+"True": "ifTrue16_17_19",
+"False": "ifFalse16_17_19"
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "Seq",
+"Left": {
+"Type": "Label",
+"Name": "ifTrue16_17_19"
+},
+"Right": {
+"Type": "Move",
+"Left": {
+"Type": "TempVar",
+"Id": "ifResult16_17_19"
+},
+"Right": {
+"Type": "Name",
+"Name": "string16_34_38"
+}
+}
+},
+"Right": {
+"Type": "Jump",
+"Target": {
+"Type": "Label",
+"Name": "ifEnd16_17_19"
+}
+}
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "Label",
+"Name": "ifFalse16_17_19"
+},
+"Right": {
+"Type": "Move",
+"Left": {
+"Type": "TempVar",
+"Id": "ifResult16_17_19"
+},
+"Right": {
+"Type": "Name",
+"Name": "string16_44_48"
+}
+}
+}
+}
+},
+"Right": {
+"Type": "Label",
+"Name": "ifEnd16_17_19"
+}
+},
+"Right": {
+"Type": "TempVar",
+"Id": "ifResult16_17_19"
+}
+}]
+}
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "Jump",
+"Target": {
+"Type": "Label",
+"Name": "forStart15_7_10"
+}
+},
+"Right": {
+"Type": "Label",
+"Name": "forEnd15_7_10"
+}
+}
+}
+}
+}
+}
+},
+"Right": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "sp"
+},
+"Right": {
+"Type": "Constant",
+"Value": 8
+}
+}
+}
+},
+"Right": {
+"Type": "FunctionCall",
+"Name": {
+"Type": "Name",
+"Name": "print"
+},
+"Params": [{
+"Type": "Name",
+"Name": "string17_13_17"
+}]
+}
+}
+},
+"Right": {
+"Type": "Seq",
+"Left": {
+"Type": "Jump",
+"Target": {
+"Type": "Label",
+"Name": "forStart14_9_12"
+}
+},
+"Right": {
+"Type": "Label",
+"Name": "forEnd14_9_12"
+}
+}
+}
+}
+}
+}
+},
+"Right": {
+"Type": "Binop",
+"op": "N5tiger2ir4PlusE",
+"Left": {
+"Type": "TempVar",
+"Id": "sp"
+},
+"Right": {
+"Type": "Constant",
+"Value": 8
+}
+}
+}
+},
+"Right": {
+"Type": "FunctionCall",
+"Name": {
+"Type": "Name",
+"Name": "print"
+},
+"Params": [{
+"Type": "Name",
+"Name": "string18_16_20"
+}]
+}
+}
+}
+}

@@ -3,24 +3,24 @@ Terminals unused in grammar
    UNKNOWN
 
 
-State 10 conflicts: 1 shift/reduce
-State 19 conflicts: 1 shift/reduce
-State 20 conflicts: 1 shift/reduce
-State 22 conflicts: 8 shift/reduce
-State 23 conflicts: 2 shift/reduce
-State 75 conflicts: 1 shift/reduce
-State 77 conflicts: 2 shift/reduce
-State 78 conflicts: 2 shift/reduce
-State 79 conflicts: 2 shift/reduce
-State 80 conflicts: 2 shift/reduce
-State 81 conflicts: 2 shift/reduce
-State 82 conflicts: 2 shift/reduce
-State 83 conflicts: 2 shift/reduce
-State 84 conflicts: 2 shift/reduce
-State 92 conflicts: 1 shift/reduce
+状态 10 conflicts: 1 shift/reduce
+状态 19 conflicts: 1 shift/reduce
+状态 20 conflicts: 1 shift/reduce
+状态 22 conflicts: 8 shift/reduce
+状态 23 conflicts: 2 shift/reduce
+状态 75 conflicts: 1 shift/reduce
+状态 77 conflicts: 2 shift/reduce
+状态 78 conflicts: 2 shift/reduce
+状态 79 conflicts: 2 shift/reduce
+状态 80 conflicts: 2 shift/reduce
+状态 81 conflicts: 2 shift/reduce
+状态 82 conflicts: 2 shift/reduce
+状态 83 conflicts: 2 shift/reduce
+状态 84 conflicts: 2 shift/reduce
+状态 92 conflicts: 1 shift/reduce
 
 
-Grammar
+语法
 
     0 $accept: program $end
 
@@ -193,76 +193,76 @@ IDENTIFIER (301) 13 45 46 47 48 49 51 54 55 65 66 67 70 71 72 73 76
 Nonterminals, with rules where they appear
 
 $accept (47)
-    on left: 0
+    左： 0
 program (48)
-    on left: 1, on right: 0
+    左： 1, 右： 0
 breakable-expression (49)
-    on left: 2 3, on right: 13 14
+    左： 2 3, 右： 13 14
 expression (50)
-    on left: 4 5 6 7 8 9 10, on right: 1 3 11 12 13 14 18 19 20 47
-    49 50 54 55 58 59 72 73 78
+    左： 4 5 6 7 8 9 10, 右： 1 3 11 12 13 14 18 19 20 47 49 50
+    54 55 58 59 72 73 78
 if-then-else (51)
-    on left: 11, on right: 4
+    左： 11, 右： 4
 if-then (52)
-    on left: 12, on right: 5
+    左： 12, 右： 5
 for (53)
-    on left: 13, on right: 7
+    左： 13, 右： 7
 while (54)
-    on left: 14, on right: 6
+    左： 14, 右： 6
 let-expression (55)
-    on left: 15, on right: 8
+    左： 15, 右： 8
 semicolon-separated-expression (56)
-    on left: 16 17, on right: 15 19 44
+    左： 16 17, 右： 15 19 44
 nonempty-semicolon-separated-expression (57)
-    on left: 18 19, on right: 17
+    左： 18 19, 右： 17
 assignment-expression (58)
-    on left: 20, on right: 9
+    左： 20, 右： 9
 logical-or-expression (59)
-    on left: 21 22, on right: 10 22
+    左： 21 22, 右： 10 22
 logical-and-expression (60)
-    on left: 23 24, on right: 21 22 24
+    左： 23 24, 右： 21 22 24
 equality-expression (61)
-    on left: 25 26 27 28 29 30 31, on right: 23 24
+    左： 25 26 27 28 29 30 31, 右： 23 24
 additive-expression (62)
-    on left: 32 33 34, on right: 25 26 27 28 29 30 31 33 34
+    左： 32 33 34, 右： 25 26 27 28 29 30 31 33 34
 multiplicative-expression (63)
-    on left: 35 36 37, on right: 32 33 34 36 37
+    左： 35 36 37, 右： 32 33 34 36 37
 unary-expression (64)
-    on left: 38 39, on right: 35 36 37 39
+    左： 38 39, 右： 35 36 37 39
 postfix-expression (65)
-    on left: 40 41 42 43 44 45 46 47, on right: 38
+    左： 40 41 42 43 44 45 46 47, 右： 38
 lvalue-expression (66)
-    on left: 48 49 50 51, on right: 20 40 50 51
+    左： 48 49 50 51, 右： 20 40 50 51
 comma-separated-record-field (67)
-    on left: 52 53, on right: 46 55
+    左： 52 53, 右： 46 55
 nonempty-comma-separated-record-field (68)
-    on left: 54 55, on right: 53
+    左： 54 55, 右： 53
 comma-separated-expression (69)
-    on left: 56 57, on right: 45 59
+    左： 56 57, 右： 45 59
 nonempty-comma-separated-expression (70)
-    on left: 58 59, on right: 57
+    左： 58 59, 右： 57
 space-separated-declaration (71)
-    on left: 60 61, on right: 15 61
+    左： 60 61, 右： 15 61
 declaration (72)
-    on left: 62 63 64, on right: 61
+    左： 62 63 64, 右： 61
 type-declaration (73)
-    on left: 65, on right: 64
+    左： 65, 右： 64
 type (74)
-    on left: 66 67 68, on right: 65
+    左： 66 67 68, 右： 65
 record-type (75)
-    on left: 69, on right: 68
+    左： 69, 右： 68
 comma-separated-field (76)
-    on left: 70 71, on right: 69 71
+    左： 70 71, 右： 69 71
 function-declaration (77)
-    on left: 72 73, on right: 62
+    左： 72 73, 右： 62
 comma-separated-parameter (78)
-    on left: 74 75, on right: 72 73 77
+    左： 74 75, 右： 72 73 77
 nonempty-comma-separated-parameter (79)
-    on left: 76 77, on right: 75
+    左： 76 77, 右： 75
 variable-declaration (80)
-    on left: 78, on right: 63
+    左： 78, 右： 63
 nullable-colon-type (81)
-    on left: 79 80, on right: 78
+    左： 79 80, 右： 78
 
 
 State 0
@@ -280,22 +280,22 @@ State 0
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    program                    go to state 11
-    expression                 go to state 12
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    program                    转到状态 11
+    expression                 转到状态 12
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 1
@@ -315,23 +315,23 @@ State 1
 
     $default  reduce using rule 16 (semicolon-separated-expression)
 
-    expression                               go to state 27
-    if-then-else                             go to state 13
-    if-then                                  go to state 14
-    for                                      go to state 15
-    while                                    go to state 16
-    let-expression                           go to state 17
-    semicolon-separated-expression           go to state 28
-    nonempty-semicolon-separated-expression  go to state 29
-    assignment-expression                    go to state 18
-    logical-or-expression                    go to state 19
-    logical-and-expression                   go to state 20
-    equality-expression                      go to state 21
-    additive-expression                      go to state 22
-    multiplicative-expression                go to state 23
-    unary-expression                         go to state 24
-    postfix-expression                       go to state 25
-    lvalue-expression                        go to state 26
+    expression                               转到状态 27
+    if-then-else                             转到状态 13
+    if-then                                  转到状态 14
+    for                                      转到状态 15
+    while                                    转到状态 16
+    let-expression                           转到状态 17
+    semicolon-separated-expression           转到状态 28
+    nonempty-semicolon-separated-expression  转到状态 29
+    assignment-expression                    转到状态 18
+    logical-or-expression                    转到状态 19
+    logical-and-expression                   转到状态 20
+    equality-expression                      转到状态 21
+    additive-expression                      转到状态 22
+    multiplicative-expression                转到状态 23
+    unary-expression                         转到状态 24
+    postfix-expression                       转到状态 25
+    lvalue-expression                        转到状态 26
 
 
 State 2
@@ -345,9 +345,9 @@ State 2
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    unary-expression    go to state 30
-    postfix-expression  go to state 25
-    lvalue-expression   go to state 31
+    unary-expression    转到状态 30
+    postfix-expression  转到状态 25
+    lvalue-expression   转到状态 31
 
 
 State 3
@@ -373,21 +373,21 @@ State 4
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 33
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 33
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 5
@@ -396,7 +396,7 @@ State 5
 
     $default  reduce using rule 60 (space-separated-declaration)
 
-    space-separated-declaration  go to state 34
+    space-separated-declaration  转到状态 34
 
 
 State 6
@@ -421,21 +421,21 @@ State 7
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 35
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 35
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 8
@@ -694,10 +694,10 @@ State 34
     TYPE      shift, and go to state 61
     VAR       shift, and go to state 62
 
-    declaration           go to state 63
-    type-declaration      go to state 64
-    function-declaration  go to state 65
-    variable-declaration  go to state 66
+    declaration           转到状态 63
+    type-declaration      转到状态 64
+    function-declaration  转到状态 65
+    variable-declaration  转到状态 66
 
 
 State 35
@@ -724,23 +724,23 @@ State 36
 
     $default  reduce using rule 56 (comma-separated-expression)
 
-    expression                           go to state 68
-    if-then-else                         go to state 13
-    if-then                              go to state 14
-    for                                  go to state 15
-    while                                go to state 16
-    let-expression                       go to state 17
-    assignment-expression                go to state 18
-    logical-or-expression                go to state 19
-    logical-and-expression               go to state 20
-    equality-expression                  go to state 21
-    additive-expression                  go to state 22
-    multiplicative-expression            go to state 23
-    unary-expression                     go to state 24
-    postfix-expression                   go to state 25
-    lvalue-expression                    go to state 26
-    comma-separated-expression           go to state 69
-    nonempty-comma-separated-expression  go to state 70
+    expression                           转到状态 68
+    if-then-else                         转到状态 13
+    if-then                              转到状态 14
+    for                                  转到状态 15
+    while                                转到状态 16
+    let-expression                       转到状态 17
+    assignment-expression                转到状态 18
+    logical-or-expression                转到状态 19
+    logical-and-expression               转到状态 20
+    equality-expression                  转到状态 21
+    additive-expression                  转到状态 22
+    multiplicative-expression            转到状态 23
+    unary-expression                     转到状态 24
+    postfix-expression                   转到状态 25
+    lvalue-expression                    转到状态 26
+    comma-separated-expression           转到状态 69
+    nonempty-comma-separated-expression  转到状态 70
 
 
 State 37
@@ -759,21 +759,21 @@ State 37
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 71
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 71
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 38
@@ -784,15 +784,15 @@ State 38
 
     $default  reduce using rule 52 (comma-separated-record-field)
 
-    comma-separated-record-field           go to state 73
-    nonempty-comma-separated-record-field  go to state 74
+    comma-separated-record-field           转到状态 73
+    nonempty-comma-separated-record-field  转到状态 74
 
 
 State 39
 
     0 $accept: program $end .
 
-    $default  accept
+    $default  接受
 
 
 State 40
@@ -806,13 +806,13 @@ State 40
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    logical-and-expression     go to state 75
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 31
+    logical-and-expression     转到状态 75
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 31
 
 
 State 41
@@ -826,12 +826,12 @@ State 41
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    equality-expression        go to state 76
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 31
+    equality-expression        转到状态 76
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 31
 
 
 State 42
@@ -845,10 +845,10 @@ State 42
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    multiplicative-expression  go to state 77
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 31
+    multiplicative-expression  转到状态 77
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 31
 
 
 State 43
@@ -862,10 +862,10 @@ State 43
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    multiplicative-expression  go to state 78
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 31
+    multiplicative-expression  转到状态 78
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 31
 
 
 State 44
@@ -879,11 +879,11 @@ State 44
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    additive-expression        go to state 79
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 31
+    additive-expression        转到状态 79
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 31
 
 
 State 45
@@ -897,11 +897,11 @@ State 45
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    additive-expression        go to state 80
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 31
+    additive-expression        转到状态 80
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 31
 
 
 State 46
@@ -915,11 +915,11 @@ State 46
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    additive-expression        go to state 81
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 31
+    additive-expression        转到状态 81
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 31
 
 
 State 47
@@ -933,11 +933,11 @@ State 47
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    additive-expression        go to state 82
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 31
+    additive-expression        转到状态 82
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 31
 
 
 State 48
@@ -951,11 +951,11 @@ State 48
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    additive-expression        go to state 83
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 31
+    additive-expression        转到状态 83
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 31
 
 
 State 49
@@ -969,11 +969,11 @@ State 49
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    additive-expression        go to state 84
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 31
+    additive-expression        转到状态 84
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 31
 
 
 State 50
@@ -987,9 +987,9 @@ State 50
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    unary-expression    go to state 85
-    postfix-expression  go to state 25
-    lvalue-expression   go to state 31
+    unary-expression    转到状态 85
+    postfix-expression  转到状态 25
+    lvalue-expression   转到状态 31
 
 
 State 51
@@ -1003,9 +1003,9 @@ State 51
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    unary-expression    go to state 86
-    postfix-expression  go to state 25
-    lvalue-expression   go to state 31
+    unary-expression    转到状态 86
+    postfix-expression  转到状态 25
+    lvalue-expression   转到状态 31
 
 
 State 52
@@ -1023,21 +1023,21 @@ State 52
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 87
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 87
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 53
@@ -1055,21 +1055,21 @@ State 53
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 88
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 88
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 54
@@ -1101,21 +1101,21 @@ State 56
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 90
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 90
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 57
@@ -1133,21 +1133,21 @@ State 57
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 91
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 91
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 58
@@ -1166,21 +1166,21 @@ State 58
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 92
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 92
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 59
@@ -1208,23 +1208,23 @@ State 60
 
     $default  reduce using rule 16 (semicolon-separated-expression)
 
-    expression                               go to state 27
-    if-then-else                             go to state 13
-    if-then                                  go to state 14
-    for                                      go to state 15
-    while                                    go to state 16
-    let-expression                           go to state 17
-    semicolon-separated-expression           go to state 94
-    nonempty-semicolon-separated-expression  go to state 29
-    assignment-expression                    go to state 18
-    logical-or-expression                    go to state 19
-    logical-and-expression                   go to state 20
-    equality-expression                      go to state 21
-    additive-expression                      go to state 22
-    multiplicative-expression                go to state 23
-    unary-expression                         go to state 24
-    postfix-expression                       go to state 25
-    lvalue-expression                        go to state 26
+    expression                               转到状态 27
+    if-then-else                             转到状态 13
+    if-then                                  转到状态 14
+    for                                      转到状态 15
+    while                                    转到状态 16
+    let-expression                           转到状态 17
+    semicolon-separated-expression           转到状态 94
+    nonempty-semicolon-separated-expression  转到状态 29
+    assignment-expression                    转到状态 18
+    logical-or-expression                    转到状态 19
+    logical-and-expression                   转到状态 20
+    equality-expression                      转到状态 21
+    additive-expression                      转到状态 22
+    multiplicative-expression                转到状态 23
+    unary-expression                         转到状态 24
+    postfix-expression                       转到状态 25
+    lvalue-expression                        转到状态 26
 
 
 State 61
@@ -1285,22 +1285,22 @@ State 67
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    breakable-expression       go to state 98
-    expression                 go to state 99
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    breakable-expression       转到状态 98
+    expression                 转到状态 99
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 68
@@ -1579,7 +1579,7 @@ State 96
 
     $default  reduce using rule 79 (nullable-colon-type)
 
-    nullable-colon-type  go to state 113
+    nullable-colon-type  转到状态 113
 
 
 State 97
@@ -1625,21 +1625,21 @@ State 101
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 114
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 114
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 102
@@ -1667,21 +1667,21 @@ State 103
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 116
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 116
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 104
@@ -1720,21 +1720,21 @@ State 107
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 118
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 118
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 108
@@ -1752,21 +1752,21 @@ State 108
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 119
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 119
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 109
@@ -1778,8 +1778,8 @@ State 109
 
     $default  reduce using rule 74 (comma-separated-parameter)
 
-    comma-separated-parameter           go to state 121
-    nonempty-comma-separated-parameter  go to state 122
+    comma-separated-parameter           转到状态 121
+    nonempty-comma-separated-parameter  转到状态 122
 
 
 State 110
@@ -1797,8 +1797,8 @@ State 111
     ARRAY       shift, and go to state 124
     IDENTIFIER  shift, and go to state 125
 
-    type         go to state 126
-    record-type  go to state 127
+    type         转到状态 126
+    record-type  转到状态 127
 
 
 State 112
@@ -1837,21 +1837,21 @@ State 115
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 130
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 130
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 116
@@ -1912,7 +1912,7 @@ State 123
 
     IDENTIFIER  shift, and go to state 136
 
-    comma-separated-field  go to state 137
+    comma-separated-field  转到状态 137
 
 
 State 124
@@ -1965,21 +1965,21 @@ State 129
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 139
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 139
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 130
@@ -2004,21 +2004,21 @@ State 131
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 140
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 140
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 132
@@ -2037,22 +2037,22 @@ State 132
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    breakable-expression       go to state 141
-    expression                 go to state 99
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    breakable-expression       转到状态 141
+    expression                 转到状态 99
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 133
@@ -2151,21 +2151,21 @@ State 144
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 151
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 151
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 145
@@ -2253,21 +2253,21 @@ State 155
     STRING      shift, and go to state 9
     IDENTIFIER  shift, and go to state 10
 
-    expression                 go to state 158
-    if-then-else               go to state 13
-    if-then                    go to state 14
-    for                        go to state 15
-    while                      go to state 16
-    let-expression             go to state 17
-    assignment-expression      go to state 18
-    logical-or-expression      go to state 19
-    logical-and-expression     go to state 20
-    equality-expression        go to state 21
-    additive-expression        go to state 22
-    multiplicative-expression  go to state 23
-    unary-expression           go to state 24
-    postfix-expression         go to state 25
-    lvalue-expression          go to state 26
+    expression                 转到状态 158
+    if-then-else               转到状态 13
+    if-then                    转到状态 14
+    for                        转到状态 15
+    while                      转到状态 16
+    let-expression             转到状态 17
+    assignment-expression      转到状态 18
+    logical-or-expression      转到状态 19
+    logical-and-expression     转到状态 20
+    equality-expression        转到状态 21
+    additive-expression        转到状态 22
+    multiplicative-expression  转到状态 23
+    unary-expression           转到状态 24
+    postfix-expression         转到状态 25
+    lvalue-expression          转到状态 26
 
 
 State 156

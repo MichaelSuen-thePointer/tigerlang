@@ -2,8 +2,8 @@
 #include <fstream>
 #include "TigerScanner.hpp"
 #include "tiger.tab.hh"
-#include "TigerFrame.hpp"
 #include "TigerIRT.hpp"
+#include "TigerFrame.hpp"
 
 int main()
 {
@@ -20,13 +20,14 @@ int main()
     else
     {
         std::cout << "Parse succeed\n";
-        prog->graphviz();
-        //std::cout << prog->graphvizCode;
     }
     try
     {
         prog->semanticCheck();
         std::cout << "No syntax error or type error\n";
+        prog->graphviz();
+        std::ofstream outAST("AST.gv");
+        outAST << prog->graphvizCode;
     }
     catch (std::runtime_error& e)
     {

@@ -1,6 +1,6 @@
 #include <cassert>
-#include "TigerFrame.hpp"
 #include "TigerIRT.hpp"
+#include "TigerFrame.hpp"
 
 namespace tiger
 {
@@ -15,6 +15,9 @@ Frame::Frame()
 {
     _frameBuffer[0].reset(new TigerFrame(nullptr));
 }
+
+Frame::~Frame()
+{}
 
 TigerFrame* Frame::currentFrame()
 {
